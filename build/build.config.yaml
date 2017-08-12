@@ -1,0 +1,34 @@
+name: Steam Helper For Chrome
+src: 
+    base: src
+    assets: 
+    pages: 
+        - "index.html"
+    scripts:
+        - "scripts/inject/*.js"
+        - "scripts/page/index.js"
+    concat:
+    styles:
+        - "styles/*.scss"
+dist: 
+    base: extension
+    clean: false
+
+watch:
+    - "src"
+
+hook:
+    before_all: "node hook_custom_clean.js"
+    # after_build: "node ../demo-hooks/AFTER_BUILD"
+    # parameters: build_counter:interger
+
+    # async_before_all: "node ../demo-hooks/BEFORE_ALL"
+    # async_after_build: "node ../demo-hooks/AFTER_BUILD"
+
+
+processor:
+    sass: true
+    babel: 
+        enable: true
+        babelrc: .babelrc
+        

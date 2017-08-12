@@ -1,5 +1,6 @@
-extLog('buy-five-cards.js');
-let app = new App();
+let log = require('./utils/logger').create('buy-five-cards.js');
+
+global.app = new App();
 function App() {
 
 	const BLOCK_SELECTOR = `.market_commodity_orders_header`;
@@ -12,9 +13,9 @@ function App() {
 	
 	btns[0].addEventListener('click', () => {
 		let pac = getPricesAndCounts();
-		extLog('sale price info:', pac);
+		log('sale price info:', pac);
 		let price = calc(pac);
-		extLog('price info:',price);
+		log('price info:',price);
 		clickConfirmCheckBox();
 		inputPriceAndCount(price.high, 5);
 		appendTip(price);
@@ -101,5 +102,4 @@ function App() {
 	 * @returns {NodeListOf<Element>}
 	 */
 	function $(selector = '', base = null) { return (base || document).querySelectorAll(selector); }
-};
-function extLog(...p) {  console.log('steam-web-scripts', ...p); }
+}

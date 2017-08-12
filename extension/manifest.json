@@ -13,12 +13,12 @@
 	"content_scripts": [
 		{
 			"matches": ["*://steamcommunity.com/market/listings/*"],
-			"js": ["dist/buy-five-cards.js"],
+			"js": ["scripts/inject/buy-five-cards.js"],
 			"run_at": "document_end",
 			"all_frames": false
 		},{
 			"matches": ["*://steamcommunity.com/id/*/inventory/*"],
-			"js": ["dist/inventory-sell.js"],
+			"js": ["scripts/inject/inventory-sell.js"],
 			"run_at": "document_end",
 			"all_frames": false
 		}

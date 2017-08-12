@@ -1,3 +1,6 @@
+# sourcemaps
+extension/**/*.map
+
 # Logs
 logs
 *.log

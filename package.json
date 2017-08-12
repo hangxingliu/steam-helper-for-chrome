@@ -3,12 +3,30 @@
   "version": "1.0.0",
   "description": "A Chrome extension for enhancing steam website",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "start": "node ./build/build.js",
+    "build": "node ./build/build.js",
+    "watch": "node ./build/build.js -w"
+  },
   "author": "LiuYue",
   "license": "GPL-3.0",
   "devDependencies": {
     "@types/chrome": "0.0.48",
-    "browserify": "^14.4.0"
+    "@types/node": "^8.0.20",
+    "async": "^2.5.0",
+    "babel-core": "^6.25.0",
+    "babel-preset-react": "^6.24.1",
+    "browserify": "^14.4.0",
+    "commander": "^2.11.0",
+    "convert-source-map": "^1.5.0",
+    "eslint": "^4.4.1",
+    "eslint-plugin-react": "^7.2.0",
+    "fs-extra": "^4.0.1",
+    "glob": "^7.1.2",
+    "js-yaml": "^3.9.1",
+    "node-sass": "^4.5.3",
+    "postcss": "^6.0.9",
+    "watch": "^1.0.2"
   },
   "dependencies": {},
   "repository": {
