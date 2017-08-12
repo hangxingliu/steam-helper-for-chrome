@@ -1,0 +1,27 @@
+{
+  "name": "steam-helper-for-chrome",
+  "version": "1.0.0",
+  "description": "A Chrome extension for enhancing steam website",
+  "main": "index.js",
+  "scripts": {},
+  "author": "LiuYue",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "@types/chrome": "0.0.48",
+    "browserify": "^14.4.0"
+  },
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hangxingliu/steam-helper-for-chrome.git"
+  },
+  "keywords": [
+    "steam",
+    "chrome",
+    "extension"
+  ],
+  "bugs": {
+    "url": "https://github.com/hangxingliu/steam-helper-for-chrome/issues"
+  },
+  "homepage": "https://github.com/hangxingliu/steam-helper-for-chrome#readme"
+}
