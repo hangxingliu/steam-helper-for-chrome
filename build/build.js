@@ -2,12 +2,14 @@
 
 /**
  * frontend build scripts
- * version: 0.4.1
- * date: 2017-08-13 04:55
+ * version: 0.6.0
+ * date: 2017-08-14 01:28
  */
 
 //@ts-check
-/// <reference path="../types/type.d.ts" />
+/// <reference path="type.d.ts" />
+
+/*eslint-disable no-console*/
 
 const CONFIG_FILE = `${__dirname}/build.config.yaml`;
 
@@ -19,12 +21,11 @@ let fs = require('fs-extra'),
 	yaml = require('js-yaml'),
 	postcss = require('postcss'),
 	browserify = require('browserify'),
-	sourceMapConvert = require('convert-source-map'),
 	{ join: joinPath, dirname, basename, isAbsolute } = require('path'),
 	{ exec } = require('child_process'),
 	Async = require('async'),
 	{ read: loadConfig } = require('./config_reader');
-
+	
 //>>>>>>>>> Processor
 let ejs = null, //require('ejs'),
 	pug = null, //require('pug'),	
@@ -34,10 +35,14 @@ let ejs = null, //require('ejs'),
 	cheerio = null, //require('cheerio'),
 	htmlMinifier = null, //require('html-minifier'),
 	browserSync = null, // require('browser-sync'),
-	watch = null //require('watch');
-;
+	watch = null, //require('watch');
+	watchify = null, //require('watchify');
+	sourceMapConvert = null //require('convert-source-map');
+	;
+
 function loadProcessors(opts) {
 	let c = processorConfig;
+	if (c.source_map.enable && c.source_map.js) sourceMapConvert = require('convert-source-map');
 	if (c.sass.enable) sass = require('node-sass');
 	if (c.less.enable) console.log('LESS is TODO...');
 	if (c.autoprefixer.enable) autoprefixer = require('autoprefixer');
@@ -48,7 +53,10 @@ function loadProcessors(opts) {
 	if (c.ejs_template_tags.enable) cheerio = require('cheerio');
 	if (c.pug.enable) pug = require('pug');
 
-	if (opts.watch) watch = require('watch');
+	if (opts.watch) {
+		watch = require('watch');
+		watchify = require('watchify');
+	}
 }
 
 
@@ -62,14 +70,18 @@ let start = name => {
 };
 
 let buildCounter = 0;
-/**
- * @type {ConfigObject}
- */
+
+/** @type {ConfigObject} */
 let config = null;
-/**
- * @type {ProcessorConfigObject}
- */
+
+/** @type {ProcessorConfigObject} */
 let processorConfig = null;
+
+/** browserSync Instance */
+let bs = null;
+
+/** 只能调用一次 handlerScripts 因为 脚本 的更新构建 是由 watchify 控制的 */
+let hasCalledHandlerScriptsFunc = false;
 
 const EMPTY_CALLBACK = (...args) => void args;
 
@@ -230,45 +242,68 @@ function renderEjsTemplateTags(html) {
 
 //>>>>>>>>>>> handlerScripts
 function handlerScripts(callback) {
+	if (hasCalledHandlerScriptsFunc) 
+		throw `handlerScripts could be only called one time!`;
+	hasCalledHandlerScriptsFunc = true;
+
 	let log = start('handler scripts');
 	let { src, dist } = config,	
 		files = globFiles(config.src_script_globs, { cwd: src });
 	Async.map(files, (name, cb) => browserifyAndBabel(joinPath(src, name), joinPath(dist, name), cb),
 		() => (log.done(), callback && callback()));
 }
-function browserifyAndBabel(from, to, then) {
+function browserifyAndBabel(from, to, _then) {
 	let scriptName = basename(to);
-	browserify([from], { debug: true, basedir: dirname(to) })
-		.bundle((err, buffer) => {
-			if (err) return console.error(`  error: browserify ${scriptName}`.red, "\n", err), then();	
-			let code = String(buffer);	
-			let map = JSON.parse(sourceMapConvert.fromSource(code).toJSON());	
-			code = sourceMapConvert.removeMapFileComments(code);	
-			if (processorConfig.babel.enable) {
-				let babel = babelTransform(scriptName, code, map, getBabelrcPath());
-				if (babel.err) return then(babel.err);
-				code = babel.code; map = babel.map;
-			}
-			try {
-				writeFileWithMkdirsSync(to, code);
-				fs.writeFileSync(`${to}.map`, JSON.stringify(map, null, '\t'));
-			} catch (ex) {
-				return console.error(`  error: write codes and sources map to target file failed!`.red, "\n", ex.stack || ex), then(ex);
-			}
-			return then();
+	let isSourceMapOn = processorConfig.source_map.enable && processorConfig.source_map.js;
+	let then = _then;
+	
+	let b = browserify([from], {
+		debug: isSourceMapOn, basedir: dirname(to),
+		cache: {}, packageCache: {} // for watchify
+	});
+	// Running at watch mode if watchify is not null
+	if (watchify) {
+		b.plugin(watchify, processorConfig.watchify);
+		b.on('update', () => {
+			then = () => (console.log(`${from} updated!`), reloadJS());
+			b.bundle(bundleCallback);
 		});
+	}	
+	b.bundle(bundleCallback);
+
+	function bundleCallback(err, buffer) {
+		if (err) return console.error(`  error: browserify ${scriptName}`.red, "\n", err), then();	
+		let code = String(buffer);	
+		let map = null;
+		if (isSourceMapOn) {
+			JSON.parse(sourceMapConvert.fromSource(code).toJSON());
+			code = sourceMapConvert.removeMapFileComments(code);
+		}
+		if (processorConfig.babel.enable) {
+			let babel = babelTransform(getBabelrcPath(), scriptName, code, map);
+			if (babel.err) return then(babel.err);
+			code = babel.code; map = babel.map;
+		}
+		try {
+			writeFileWithMkdirsSync(to, code);
+			isSourceMapOn && fs.writeFileSync(`${to}.map`, JSON.stringify(map, null, '\t'));
+		} catch (ex) {
+			return console.error(`  error: write codes and sources map to target file failed!`.red, "\n", ex.stack || ex), then(ex);
+		}
+		return then();
+	}
 }
 function getBabelrcPath() {
 	let path = processorConfig.babel.babelrc;
 	if (path && !isAbsolute(path)) return joinPath(process.cwd(), path);
 }
-function babelTransform(scriptName, codes, sourcesMap, babelrcPath) {
+function babelTransform(babelrcPath, scriptName, codes, inSourcesMap = null) {
 	try {
-		let options = { sourceMaps: true, inputSourceMap: sourcesMap };
+		let options = inSourcesMap ? { sourceMaps: true, inputSourceMap: inSourcesMap } : {};
 		if (babelrcPath) options.extends = babelrcPath;
 		let result = babel.transform(codes, options);
 		return {
-			code: result.code + `\n//# sourceMappingURL=${scriptName}.map`,
+			code: inSourcesMap ? `${result.code}\n//# sourceMappingURL=${scriptName}.map` : result.code,
 			map: result.map
 		};
 	} catch (err) {
@@ -295,19 +330,20 @@ function handlerSassLessAndCss(from, to, then) {
 }
 function handlerSass(from, to, indented, then){	
 	let styleName = basename(from);
+	let isSourceMapOn = processorConfig.source_map.enable && processorConfig.source_map.css;
 	let SourcesMapTo = `${to}.map`;
 	sass.render({
 		file: from,
 		indentedSyntax: false,
 		outputStyle: 'compressed',
 		outFile: to,
-		sourceMap: SourcesMapTo,
+		sourceMap: isSourceMapOn ? SourcesMapTo : void 0
 	}, (err, result) => {
 		if (err) return console.error(`  error: sass compile ${styleName}`.red, '\n', err), then();
-		postcss([autoprefixer]).process(result.css, {
+		postcss(autoprefixer?[autoprefixer]:[]).process(result.css, {
 			from: styleName,
 			to: styleName.replace(/\.scss$/, '.css'),
-			map: { inline: false, prev: JSON.parse(result.map) }
+			map: isSourceMapOn ? { inline: false, prev: JSON.parse(result.map) } : void 0
 		}).then(result => {
 			let ws = result.warnings();
 			if (ws.length > 0) {
@@ -315,7 +351,7 @@ function handlerSass(from, to, indented, then){
 				ws.forEach(warn => console.log(`  ${warn.toString()}`.yellow));
 			}
 			writeFileWithMkdirsSync(to, result.css);
-			fs.writeFileSync(SourcesMapTo, JSON.stringify(result.map, null, '\t'));
+			isSourceMapOn && fs.writeFileSync(SourcesMapTo, JSON.stringify(result.map, null, '\t'));
 			then();
 		}).catch(err => {
 			console.error(`  error: auto prefixer ${styleName}`.red, '\n', err);
@@ -325,7 +361,6 @@ function handlerSass(from, to, indented, then){
 }		
 
 function watchSources() {
-	let bs = null;
 	if (processorConfig.browser_sync.enable){
 		bs = browserSync.create();
 		bs.init(processorConfig.browser_sync);
@@ -335,26 +370,23 @@ function watchSources() {
 		if (typeof path == "object" && prev === null && curr === null)
 			return; //First time scan
 		//TODO accurately execute handler
-		console.log("watch >", path);
+		console.log("watch >".bold, path);
 		if (path.endsWith('.yaml'))
 			return loadEjsVariables(), renderPages(reloadHTML);
 		if (path.endsWith('.html') || path.endsWith('.ejs') || path.endsWith('.pug') || path.endsWith('.jade'))
 			return renderPages(reloadHTML);
-		if (path.endsWith('.js')) 
-			return handlerScripts(reloadJS);
 		if (path.endsWith('.css') || path.endsWith('.sass') ||
 			path.endsWith('.scss') || path.endsWith('.less')) 
 			return handlerStyles(reloadCSS);
 	});
-	function reloadHTML() { reload('*.html') }
-	function reloadJS() { reload('*.js') }
-	function reloadCSS() { reload('*.css') }
-	function reload(reloadFiles) {
-		buildCounter++;
-		execHook('after_build', () =>
-			bs && bs.reload(reloadFiles));
-	}
-	
+}
+function reloadHTML() { reload('*.html') }
+function reloadJS() { reload('*.js') }
+function reloadCSS() { reload('*.css') }
+function reload(reloadFiles) {
+	buildCounter++;
+	execHook('after_build', () =>
+		bs && bs.reload(reloadFiles));
 }
 
 function loadLaunchParameters() {

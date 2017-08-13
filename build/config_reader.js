@@ -1,13 +1,17 @@
 /**
  * frontend build scripts
- * version: 0.4.1
- * date: 2017-08-13 04:55
+ * version: 0.6.0
+ * date: 2017-08-14 01:28
  */
 
 //@ts-check
-/// <reference path="../types/type.d.ts" />
+/// <reference path="type.d.ts" />
 
 (function () {
+	const DEFAULT = {
+		WATCHIFY: { delay: 100, ignoreWatch: ['**/node_modules/**'], poll: false }
+	};
+
 	const VALID_SYNC_HOOKS = ['before_all', 'after_build'];
 	const HOOK_ASYNC_PREFIX = 'async_';
 
@@ -125,6 +129,14 @@
 		processor.ejs = { enable: !!configProcessor.ejs };
 		processor.pug = { enable: !!configProcessor.pug };
 
+		processor.watchify = Object.assign({}, DEFAULT.WATCHIFY, configProcessor.watchify || {});
+		if (processor.watchify.enable === false)
+			throw incompleteError(`processor.watchify.enable`, 'true/undefined');
+		delete processor.watchify.enable;
+
+		processor.source_map = isObjectHasEnableField(configProcessor.source_map)
+			? configProcessor.source_map
+			: { enable: !!configProcessor.source_map };
 		processor.html_minifier = isObjectHasEnableField(configProcessor.html_minifier)
 			? configProcessor.html_minifier
 			: { enable: !!configProcessor.html_minifier };

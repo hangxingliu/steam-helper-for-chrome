@@ -5,15 +5,13 @@
         "es6": true,
         "node": true
     },
+    "parser": "babel-eslint",
     "parserOptions": {
         "ecmaFeatures": {
             "jsx": true
         },
         "sourceType": "module"
     },
-    "plugins": [
-        "react"
-    ],
     "extends": "eslint:recommended",
     "rules": {
         "no-const-assign": "warn",

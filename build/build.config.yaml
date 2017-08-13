@@ -27,6 +27,15 @@ hook:
 
 
 processor:
+    source_map: 
+        enable: false
+        js: false
+        css: false
+    watchify:
+        delay: 100
+        ignoreWatch:
+            - "**/node_modules/**"
+        poll: true
     sass: true
     babel: 
         enable: true
