@@ -1,0 +1,143 @@
+@import 'normalize.scss';
+
+@import 'fonts.scss';
+
+$pageWidth: 300px;
+$gap: 5px;
+$inputHeight: 30px;
+
+$steamWhite: #d9dadd;
+$steamGrey: #8F8F8F;
+$steamDark: #1B2838;
+$steamDarken: #171A21;
+$steamBlue: #66c0f4;
+$steamDarkBlue: #316282;
+$steamGreenBg: #4c6b22;
+$steamGreenFg: #a4d007;
+$steamYellowBg: #756825;
+$steamYellowFg: #E4B308;
+
+$xxs: 12px;
+$xs: 14px;
+$s: 16px;
+$m: 20px;
+$l: 24px;
+$xl: 28px;
+$xxl: 32px;
+
+.flex {
+	display: block;
+	display: flex;
+}
+
+body {
+	width: $pageWidth;
+	padding: $gap;
+	margin: 0 auto;
+	background-color: $steamDark;
+	background-image: url('http://store.steampowered.com/public/images/v6/colored_body_top2.png?v=2');
+	font-family: 'Roboto', 'Sans-serif';
+}
+
+.header {
+	@extend .flex;
+	justify-content: space-between;
+	align-items: center;
+	
+	padding: $gap;
+	background-color: $steamDarken;
+}
+.body {
+	padding: 0 $gap;
+	margin-bottom: $gap * 2;
+}
+
+.notification-box {
+	padding: $gap 0;
+	.notification {
+		padding: $gap;
+		font-size: $m;
+	}
+	.warn {
+		color: $steamYellowFg;
+		background-color: $steamYellowBg;
+	}
+	.success {
+		color: $steamGreenFg;
+		background-color: $steamGreenBg;
+	}
+}
+
+.page-title {
+	color: $steamGrey;
+	text-transform: uppercase;
+	font-weight: bold;
+	font-size: $xxl;
+}
+
+.btn-settings {
+	color: $steamBlue;
+	font-size: $l;
+	
+	&:hover{
+		color: $steamGrey;
+	}
+}
+
+.input-tip{
+	font-size: $m;
+	margin: $gap * 2 0 $gap 0;
+	color: $steamWhite;
+}
+.input-wrapper {
+    background-color: $steamDarkBlue;
+    border-radius: 3px;
+	border: 1px solid $steamWhite;
+    box-shadow: 1px 1px 0px rgba($steamWhite, 0.2);
+    color: $steamWhite;
+	outline: none;
+	position: relative;
+	padding: 0 $inputHeight + $gap 0 $gap;
+}
+.input {
+	width: 100%;
+	background-color: $steamDarkBlue;
+	outline: none;
+	border: none;
+	color: $steamWhite;
+	display: block;
+	font-size: $s;
+	height: $inputHeight;
+	margin: 1px;
+	font-family: 'Roboto', 'Sans-serif';
+}
+.input-addon-btn {
+	border-radius: 3px;
+	position: absolute;
+    right: 2px;
+	top: 2px;
+	width: $inputHeight;
+	height: $inputHeight;
+	line-height: $inputHeight;
+	background-color: $steamBlue;
+	text-align: center;
+	cursor: pointer;
+}
+
+.link-list {
+	list-style: none;
+	padding-left: $gap;
+
+	.link-item {
+		font-size: $m;
+		line-height: 30px;
+		text-align: right;
+		a, a:visited, a:hover{
+			text-decoration: none;
+			color: $steamBlue;
+		}
+		a:hover {
+			color: $steamWhite;
+		}
+	}
+}
