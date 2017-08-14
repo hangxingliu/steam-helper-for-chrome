@@ -9,7 +9,7 @@ src:
         - "scripts/page/index.js"
     concat:
     styles:
-        - "styles/*.scss"
+        - "styles/index.scss"
 dist: 
     base: extension
     clean: false
@@ -40,4 +40,8 @@ processor:
     babel: 
         enable: true
         babelrc: .babelrc
+    browser_sync:
+        enable: true
+        server: extension
+        open: false
         

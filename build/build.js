@@ -276,7 +276,7 @@ function browserifyAndBabel(from, to, _then) {
 		let code = String(buffer);	
 		let map = null;
 		if (isSourceMapOn) {
-			JSON.parse(sourceMapConvert.fromSource(code).toJSON());
+			map = JSON.parse(sourceMapConvert.fromSource(code).toJSON());
 			code = sourceMapConvert.removeMapFileComments(code);
 		}
 		if (processorConfig.babel.enable) {
