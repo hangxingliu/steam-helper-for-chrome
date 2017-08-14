@@ -124,14 +124,22 @@ body {
 	cursor: pointer;
 }
 
+.link-list-wrapper {
+	@extend .flex;
+	justify-content: space-between;
+	align-items: flex-end;
+}
 .link-list {
+	display: inline-block;
 	list-style: none;
 	padding-left: $gap;
+	
+	&.left {text-align: left;}
+	&.right {text-align: right;}
 
 	.link-item {
 		font-size: $m;
 		line-height: 30px;
-		text-align: right;
 		a, a:visited, a:hover{
 			text-decoration: none;
 			color: $steamBlue;

@@ -7,8 +7,8 @@ let { combineReducers } = require('redux');
 
 let links = require('./get-default-links'),
 	getLinks = (username) =>
-		links.map(({ url, title }) =>
-			({ title, url: url.replace('{}', username) }));
+		links.map(({ url, title, side }) =>
+			({ title, side, url: url.replace('{}', username) }));
 
 
 function page(state = 'index', action) {
