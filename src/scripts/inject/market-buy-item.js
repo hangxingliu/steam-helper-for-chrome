@@ -7,7 +7,7 @@
 //
 //inject-info-end
 
-let { log, error } = require('./utils/logger').init('buy-five-cards.js'),
+let { log, error } = require('./utils/logger').init('market-buy-item.js'),
 	{ $, appendDivInElement } = require('./utils/dom');
 
 
@@ -16,17 +16,29 @@ function App() {
 
 	let block = $('.market_commodity_orders_header').expect(2).get();
 	let btn = $(`.market_commodity_buy_button`, block).expect(1).get();
+	btn.className = btn.className.replace('btn_green_white_innerfade', 'btn_grey_white_innerfade');
+
+	let buy5btn = document.createElement('a');
+	buy5btn.innerHTML = `<span>购买 5 件</span>`;
+	buy5btn.className = 'btn_green_white_innerfade btn_medium market_commodity_buy_button';
+	buy5btn.style.marginBottom = '-20px';
+	block.insertBefore(buy5btn, btn);
 	
 	btn.addEventListener('click', () => {
+		clickConfirmCheckBox();
+	});
+	buy5btn.addEventListener('click', () => {
+		btn.dispatchEvent(new Event('click'));
+
 		let pac = getPricesAndCounts();
 		log('sale price info:', pac);
 		let price = calc(pac);
-		log('price info:',price);
-		clickConfirmCheckBox();
+		log('price info:', price);
 		inputPriceAndCount(price.high, 5);
 		appendTip(price);
-	})
+	});
 
+	
 	function appendTip({ base, price, high }) {
 		let recommend = high < base * 1.5;
 		let infoHTML = `<div style="margin-top: 10px;background: white;padding: 10px;font-size: 30px;
