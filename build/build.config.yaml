@@ -18,7 +18,7 @@ watch:
     - "src"
 
 hook:
-    before_all: "node hook_custom_clean.js"
+    before_all: "node hook_build_manifest_file.js"
     # after_build: "node ../demo-hooks/AFTER_BUILD"
     # parameters: build_counter:interger
 

@@ -1,0 +1,25 @@
+{
+	"manifest_version": 2,
+	"name": "Steam Helper",
+	"version": "{}",
+
+	"description": "Enhancing steam website, Buying and Selling quickly, Gabe is so happy",
+	
+	"content_scripts": "{}",
+	
+	"icons": {
+		"48": "icons/48.png",
+		"128": "icons/128.png"
+	},
+	"browser_action": {
+		"default_icon": "icons/48.png",
+		"default_title": "Steam Helper",
+		"default_popup": "index.html"
+	},
+
+	"permissions": [
+		"tabs",
+		"notifications",
+		"*://*/*"
+	]
+}

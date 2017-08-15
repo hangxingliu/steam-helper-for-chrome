@@ -2,35 +2,38 @@
 	"manifest_version": 2,
 	"name": "Steam Helper",
 	"version": "2.0.0",
-
 	"description": "Enhancing steam website, Buying and Selling quickly, Gabe is so happy",
-
+	"content_scripts": [
+		{
+			"matches": [
+				"*://steamcommunity.com/market/listings/*"
+			],
+			"run_at": "document_end",
+			"all_frames": false,
+			"js": [
+				"scripts/inject/buy-five-cards.js"
+			]
+		},
+		{
+			"matches": [
+				"*://steamcommunity.com/id/*/inventory/*"
+			],
+			"run_at": "document_end",
+			"all_frames": false,
+			"js": [
+				"scripts/inject/inventory-sell.js"
+			]
+		}
+	],
 	"icons": {
 		"48": "icons/48.png",
 		"128": "icons/128.png"
 	},
-	"content_scripts": [
-		{
-			"matches": ["*://steamcommunity.com/market/listings/*"],
-			"js": ["scripts/inject/buy-five-cards.js"],
-			"run_at": "document_end",
-			"all_frames": false
-		},{
-			"matches": ["*://steamcommunity.com/id/*/inventory/*"],
-			"js": ["scripts/inject/inventory-sell.js"],
-			"run_at": "document_end",
-			"all_frames": false
-		}
-	],
-
 	"browser_action": {
 		"default_icon": "icons/48.png",
 		"default_title": "Steam Helper",
 		"default_popup": "index.html"
 	},
-
-	"web_accessible_resources": [],
-	
 	"permissions": [
 		"tabs",
 		"notifications",

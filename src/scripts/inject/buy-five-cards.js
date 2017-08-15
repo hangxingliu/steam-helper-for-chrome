@@ -1,3 +1,12 @@
+//inject-info-start
+//
+//	matches:
+//  	- "*://steamcommunity.com/market/listings/*"
+//	run_at: "document_end"
+//	all_frames: false
+//
+//inject-info-end
+
 let log = require('./utils/logger').create('buy-five-cards.js');
 
 global.app = new App();

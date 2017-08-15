@@ -1,3 +1,12 @@
+//inject-info-start
+//
+//	matches:
+//  	- "*://steamcommunity.com/id/*/inventory/*"
+//	run_at: "document_end"
+//	all_frames: false
+//
+//inject-info-end
+
 let log = require('./utils/logger').create('inventory-sell.js');
 
 global.app = new App();
