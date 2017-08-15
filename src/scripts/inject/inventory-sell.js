@@ -1,22 +1,21 @@
 //inject-info-start
 //
 //	matches:
-//  	- "*://steamcommunity.com/id/*/inventory/*"
+//  	- "*://steamcommunity.com/id/*/inventory*"
 //	run_at: "document_end"
 //	all_frames: false
 //
 //inject-info-end
 
-let log = require('./utils/logger').create('inventory-sell.js');
+let { log, error } = require('./utils/logger').init('inventory-sell.js'),
+	{ $ } = require('./utils/dom');
+
 
 global.app = new App();
 function App() {
 	document.addEventListener('click', () => {
-		const CB_SELECTOR = `#market_sell_dialog_accept_ssa`;
-		let cbs = $(CB_SELECTOR);
-		notEqual2fatal(cbs.length, 1, `Steam销售勾选框(${CB_SELECTOR})不等于1个`);
-
-		cbs[0].checked = true;
+		let cb = $(`#market_sell_dialog_accept_ssa`).expect(1).get();
+		cb.checked = true;
 	});
 
 	// 获取价格
@@ -27,13 +26,4 @@ function App() {
 	// 	});
 	
 	
-	//==========     Lib     ========================================
-	function notEqual2fatal(a, b, desc) { if (a != b) throw desc; }
-	function empty2fatal(v, desc) { if(!v) throw desc; }
-	/**
-	 * @param {string} [selector=''] 
-	 * @param {any} base 
-	 * @returns {NodeListOf<Element>}
-	 */
-	function $(selector = '', base = null) { return (base || document).querySelectorAll(selector); }
 }
