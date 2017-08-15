@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "Steam Helper",
-	"version": "1.0.0",
+	"version": "2.0.0",
 
 	"description": "Enhancing steam website, Buying and Selling quickly, Gabe is so happy",
 
@@ -9,7 +9,6 @@
 		"48": "icons/48.png",
 		"128": "icons/128.png"
 	},
-	
 	"content_scripts": [
 		{
 			"matches": ["*://steamcommunity.com/market/listings/*"],
