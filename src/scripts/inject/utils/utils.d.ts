@@ -1,3 +1,10 @@
+type PriceHistoryItem = {
+	from: Date;
+	price: number;
+	discount: number;
+};
+type PriceHistoryArray = PriceHistoryItem[];
+	
 
 type DOMQueryResultInstance = {
 	name: (name: string) => DOMQueryResultInstance;

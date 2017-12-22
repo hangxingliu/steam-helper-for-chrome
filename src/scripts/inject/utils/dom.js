@@ -46,6 +46,17 @@ function appendDivInElement(element, divInnerHTML = '') {
 	return element;
 }
 
+/** @param {Element} element */
+function prependDivInElement(element, divInnerHTML = '') {
+	let div = document.createElement('div');
+	div.innerHTML = divInnerHTML;
+	if (element.firstChild)
+		element.insertBefore(div, element.firstChild);
+	else
+		element.appendChild(div);
+	return element;
+}
+
 module.exports = {
-	$, appendDivInElement
+	$, appendDivInElement, prependDivInElement
 };
