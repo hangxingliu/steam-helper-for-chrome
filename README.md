@@ -14,13 +14,15 @@ A Chrome extension for enhancing steam website
 1. Checking `I agree to the terms ...` automatically.
 2. Input minimum price and 5 mount for buying trading card.
 3. Show minimum total price in buying dialog.
-4. More is coming ...  
+4. Show game history prices in Steam store production page.
+5. More is coming ...  
 
 中文:   
 0. 包含一个Steam相关链接的快捷弹出页面
 1. 自动勾选 确认购买/出售 框框
 2. 自动输入购买Steam卡片最小价格和5张
 3. 显示购买的理想最低总价
+4. 在Steam商店中显示游戏的历史价格
 4. 更多的功能正在开发中 ...
 
 ## Install

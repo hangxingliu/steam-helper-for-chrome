@@ -1,9 +1,19 @@
 {
 	"manifest_version": 2,
 	"name": "Steam Helper",
-	"version": "2.0.0",
+	"version": "2.1.0",
 	"description": "Enhancing steam website, Buying and Selling quickly, Gabe is so happy",
 	"content_scripts": [
+		{
+			"matches": [
+				"*://steamcommunity.com/id/*/inventory*"
+			],
+			"run_at": "document_end",
+			"all_frames": false,
+			"js": [
+				"scripts/inject/inventory-sell.js"
+			]
+		},
 		{
 			"matches": [
 				"*://steamcommunity.com/market/listings/*"
@@ -11,17 +21,17 @@
 			"run_at": "document_end",
 			"all_frames": false,
 			"js": [
-				"scripts/inject/buy-five-cards.js"
+				"scripts/inject/market-buy-item.js"
 			]
 		},
 		{
 			"matches": [
-				"*://steamcommunity.com/id/*/inventory/*"
+				"*://store.steampowered.com/app/*"
 			],
 			"run_at": "document_end",
 			"all_frames": false,
 			"js": [
-				"scripts/inject/inventory-sell.js"
+				"scripts/inject/store-prod-page.js"
 			]
 		}
 	],
