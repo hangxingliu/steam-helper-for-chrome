@@ -6,12 +6,13 @@
     "language": "en",
     // words - list of words to be always considered correct
     "words": [
+        "btns",
         "CHANGELOG",
         "DEVTOOLS",
-        "Gabe",
-        "btns",
         "fname",
+        "Gabe",
         "hangxingliu",
+        "limegreen",
         "steamcommunity",
         "thiz"
     ],

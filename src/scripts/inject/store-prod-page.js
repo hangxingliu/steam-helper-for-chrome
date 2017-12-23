@@ -61,7 +61,6 @@ function App() {
 
 /** @param {PriceHistoryArray} prices */
 function getPriceInfo(prices) { 
-	let result = '';
 	if (prices.length == 0)
 		return '<div style="color: grey;">无价格信息</div>';	
 	if (prices.length == 1) { 
@@ -73,7 +72,8 @@ function getPriceInfo(prices) {
 	}	
 	let first = prices[0];
 	
-	let historyLowestArray = prices.slice(0, -1).sort((a, b) => a.price - b.price);
+	let historyLowestArray = prices.slice(0, -1)
+		.filter(it => it.price > 0).sort((a, b) => a.price - b.price);
 	let lowestPrice = historyLowestArray[0].price;
 	let historyLowest = historyLowestArray.filter(i => i.price == lowestPrice)
 		.sort((a, b) => b.from - a.from)[0];
@@ -90,20 +90,34 @@ function getPriceInfo(prices) {
 			description = `<div style="color: green; font-weight: bolder; font-size: 1.4em">再创低价!! 好玩就入手了吧!</div>`;
 	
 	let lowestRange = '';
+	let freeRange = [];
 	let t = historyLowest.from.getTime();
 	for (let i = 0; i < prices.length; i++) { 
 		let p = prices[i];
-		if (p.from.getTime() == t) { 
+		if (p.price == 0) {
+			let a = getDateString(p.from);
+			let b = prices[i + 1] ? getDateString(prices[i + 1].from) : '';
+			freeRange.push(`(${a}~${b})`);
+		} else if (p.from.getTime() == t) { 
 			lowestRange = `${getDateString(p.from)}~`;
 			if (prices[i + 1])
 				lowestRange += `${getDateString(prices[i + 1].from)}`;	
-			break;
 		}
 	}
+
+	let freeRangeString = '';
+	if (freeRange.length > 2)
+		freeRangeString = '... ' + freeRange.slice(-2).join(' ');
+	else if (freeRange.length > 0)
+		freeRangeString = freeRange.join(' ');
+	
+	if(freeRangeString)
+		freeRangeString = `<small style="color: grey">曾经免费: ${freeRangeString}</small><br/>`;
 
 	return `<div style="color: white">
 		<small style="color: grey">
 			发售日期: ${getDateString(first.from)}</small><br/>
+		${freeRangeString}
 		历史低价: <b style="color: white">${historyLowest.price}</b> (${lowestRange})<br/>
 		目前价格: <b style="color: white">${current.price}</b><br/>
 		${description}
