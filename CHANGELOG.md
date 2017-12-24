@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2.2.0 (2017/12/25)
+
+- Add price of card and market links in badge page
+
 ## 2.1.0 (2017/12/22)
 
 - Add history prices into Steam store production page
