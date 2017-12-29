@@ -3,10 +3,10 @@ src:
     base: src
     assets: 
     pages: 
-        - "index.html"
+        - "popup.html"
     scripts:
         - "scripts/inject/*.js"
-        - "scripts/page/index.js"
+        - "scripts/popup/index.js"
     concat:
     styles:
         - "styles/index.scss"

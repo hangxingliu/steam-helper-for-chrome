@@ -1,10 +1,12 @@
 //@ts-check
 
-let React = require('react');
+import React from 'react';
 
-module.exports = NotificationBox;
+const NON_NOTIFICATION = {enable: false, text: '', style: ''};
 
-function NotificationBox({ notification }) {
+export function NotificationBox({ 
+	notification = NON_NOTIFICATION
+}) {
 	let { enable, text, style } = notification;
 	return (
 		<div className="notification-box">

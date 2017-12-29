@@ -1,6 +1,6 @@
-const BASE = `http://steamcommunity.com/id/{}`;
+const STEAM_BASE = `http://steamcommunity.com/my`;
 
-module.exports = [
+export const links = [
 	{
 		url: `http://steam.tools/cards/`,
 		title: `STC`,
@@ -8,7 +8,12 @@ module.exports = [
 	},
 	{
 		url: `http://steam.tools/`,
-		title: `SteamTools`,
+		title: `Steam Tools`,
+		side: 'left'
+	},
+	{
+		url: `https://steamdb.info/`,
+		title: `Steam Database`,
 		side: 'left'
 	},
 	{
@@ -17,17 +22,17 @@ module.exports = [
 		side: 'right'
 	},
 	{
-		url: `${BASE}/wishlist`,
+		url: `${STEAM_BASE}/wishlist`,
 		title: `愿望单`,
 		side: 'right'
 	},
 	{
-		url: `${BASE}/`,
+		url: `${STEAM_BASE}/`,
 		title: `个人主页`,
 		side: 'right'
 	},
 	{
-		url: `${BASE}/inventory/`,
+		url: `${STEAM_BASE}/inventory/`,
 		title: `我的库存`,
 		side: 'right'
 	},

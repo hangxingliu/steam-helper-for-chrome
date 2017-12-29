@@ -3,7 +3,8 @@
         "browser": true,
         "commonjs": true,
         "es6": true,
-        "node": true
+        "node": true,
+        "jquery": true
     },
     "globals": {
         "chrome": true
@@ -15,9 +16,13 @@
         },
         "sourceType": "module"
     },
-    "extends": "eslint:recommended",
+    "extends": ["eslint:recommended", "plugin:react/recommended"],
     "rules": {
         "no-unused-vars": "warn",
-        "no-console": "off"
-    }
+        "no-console": "off",
+        "react/prop-types": "off"
+    },
+    "plugins": [
+        "react"
+    ]
 }
