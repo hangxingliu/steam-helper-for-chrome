@@ -1,3 +1,6 @@
+# ignore old files
+*.old
+
 # sourcemaps
 extension/**/*.map
 

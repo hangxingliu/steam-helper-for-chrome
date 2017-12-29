@@ -44,4 +44,10 @@ processor:
         enable: true
         server: extension
         open: false
-        
+    browserify:
+        transform:
+            - name: "babelify"
+              options:
+                presets: "react" 
+                plugins:
+                    - "transform-es2015-modules-commonjs"
