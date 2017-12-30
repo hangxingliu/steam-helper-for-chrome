@@ -4,12 +4,14 @@ src:
     assets: 
     pages: 
         - "popup.html"
+        - "inventory.html"
     scripts:
         - "scripts/inject/*.js"
         - "scripts/popup/index.js"
+        - "scripts/inventory/index.js"
     concat:
     styles:
-        - "styles/index.scss"
+        - "styles/page_*.scss"
 dist: 
     base: extension
     clean: false
@@ -29,7 +31,7 @@ hook:
 processor:
     source_map: 
         enable: false
-        js: false
+        js: true
         css: false
     watchify:
         delay: 100

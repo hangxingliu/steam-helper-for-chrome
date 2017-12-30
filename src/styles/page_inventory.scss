@@ -1,0 +1,76 @@
+@import "./fonts.scss";
+@import "./normalize.scss";
+
+@import "./steam/shared_global.scss";
+@import "./steam/globalv2.scss";
+@import "./steam/button.scss";
+@import "./steam/profilev2.scss";
+@import "./steam/economy.scss";
+@import "./steam/economy_inventory.scss";
+
+@import "./steam/addon_tags.scss";
+
+body {
+	background: #1b2838;
+    text-align: left;
+    color: #8F98A0;
+    font-size: 14px;
+    margin: 0;
+    padding: 0;
+}
+
+.hover_item_sub_name { //copy from .hover_item_name
+    color: #D6D6D6;
+    font-size: 16px;
+    font-weight: normal;
+    margin-bottom: 5px;
+    font-family: "Motiva Sans", Sans-serif;
+    font-weight: 300;
+}
+
+.inventory_load_error {
+    max-width: 1010px;
+    margin: 12px auto;
+
+    .inventory_load_error_header {
+        display: flex;
+        align-items: center;
+        .reason {
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+    }
+}
+
+.itemHolder {
+    height: 118px !important;
+    .item {
+        height: 116px !important;
+    }
+    .item_info {
+        text-align: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        &.amount { font-size: 18px;}
+    }
+}
+
+.filter_tag_options {
+    background: #2D2D2E;
+    border: 2px solid #292929;
+}
+.inventory_loading_indicator .text {
+    margin-top: 10px;
+    font-size: 1.4em;
+}
+#mainContents {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    
+    #inventories {
+        height: 620px;
+        .inventory_ctn {
+            height: 620px;
+            .inventory_page {
+                height: 620px;}}}
+}

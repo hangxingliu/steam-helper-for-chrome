@@ -1,0 +1,31 @@
+.addon_tags_container {
+	background: linear-gradient(to right, rgba(0,0,0,0.2) 0%,rgba(0,0,0,0.5) 100%);
+	padding: 8px 16px;
+	.addon_tag_item{ 
+		height: 26px;
+    	position: relative;
+		margin-bottom: 2px;
+
+		$typeWidth: 100px;
+		$paddingX: 8px;
+		.type, .name {
+			height: 22px;
+			padding-top: 4px;
+			padding-left: $paddingX;
+			padding-right: $paddingX;
+			line-height: 18px;
+			display: block;
+			border-radius: 1px;
+		}
+		.type {
+			position: absolute;
+			width: $typeWidth - 2 * $paddingX;
+			background: #080808;
+		}
+		.name {
+			margin-left: $typeWidth;
+			background: rgba( 103, 193, 245, 0.1 );
+			color: #67c1f5;
+		}
+	}
+}

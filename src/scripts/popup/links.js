@@ -1,5 +1,7 @@
 const STEAM_BASE = `http://steamcommunity.com/my`;
 
+const EXTENSION_INVENTORY = chrome.runtime.getURL('inventory.html');
+
 export const links = [
 	{
 		url: `http://steam.tools/cards/`,
@@ -32,7 +34,7 @@ export const links = [
 		side: 'right'
 	},
 	{
-		url: `${STEAM_BASE}/inventory/`,
+		url: EXTENSION_INVENTORY, //`${STEAM_BASE}/inventory/`,
 		title: `我的库存`,
 		side: 'right'
 	},
