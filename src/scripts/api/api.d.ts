@@ -57,6 +57,7 @@ type SteamInventoryItemDescription =  {
 	descriptions: { value: string; color?: string }[];
 	owner_descriptions?: { value: string; color?: string }[];
 	tradable: number;
+	actions: SteamInventoryOwnerAction[];
 	owner_actions: SteamInventoryOwnerAction[];
 	name: string;
 	name_color: string;
@@ -105,6 +106,11 @@ type SteamInventoryTagsManager = {
 			}
 		}
 	}
+};
+
+type SteamInventoryFilter = {
+	tags: { [category: string]: { [tag: string]: true } };
+	keyword: string;
 };
 
 type SteamInventoryRawResponse = {

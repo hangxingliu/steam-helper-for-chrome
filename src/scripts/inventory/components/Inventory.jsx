@@ -33,7 +33,9 @@ export function Inventory({
 	let blocks = items.map((item, i) => ({ item, desc: descriptions[i] }));
 	for (let i = blocks.length; i < pageSize; i++)
 		blocks.push({ item: null, desc: null });
-	//item={block.item} desc={block.desc}
+
+	let hasLastPage = page > 1,
+		hasNextPage = page < totalPage;
 	return <div id="tabcontent_inventory">
 		<div className="view_inventory_page" id="active_inventory_page">
 			<InventoryRightSide 
@@ -51,15 +53,15 @@ export function Inventory({
 					</div>
 				</div>
 				<div id="inventory_pagecontrols">
-					<a className={"pagecontrol_element pagebtn " + (page < totalPage ? '' : 'disabled')} 
-						onClick={() => onSwitchPage(page+1)}
+					<a className={"pagecontrol_element pagebtn " + (hasNextPage ? '' : 'disabled')} 
+						onClick={hasNextPage ? () => onSwitchPage(page+1) : undefined}
 						id="pagebtn_next"> &gt; </a>
 
 					<div className="pagecontrol_element pagecounts">
 						第 <span id="pagecontrol_cur">{page}</span> 页，共 <span id="pagecontrol_max">{totalPage}</span> 页 </div>
 
-					<a className={"pagecontrol_element pagebtn " + (page > 1 ? '' : 'disabled')} 
-						onClick={() => onSwitchPage(page-1)}
+					<a className={"pagecontrol_element pagebtn " + (hasLastPage ? '' : 'disabled')} 
+						onClick={hasLastPage ? () => onSwitchPage(page-1) : undefined}
 						id="pagebtn_previous">&lt;</a>
 
 					<div style={{ clear: 'right' }}></div>

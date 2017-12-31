@@ -16,4 +16,8 @@ type MainContainerComponent = {
 
 	selectedItem: SteamInventoryItem;
 	selectedDescription: SteamInventoryItemDescription;
+
+	inventoryTags: SteamInventoryTagsManager;
+	filter: SteamInventoryFilter;
+	onFilterUpdate: (newFilter: SteamInventoryFilter) => any;
 };

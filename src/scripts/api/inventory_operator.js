@@ -2,6 +2,7 @@
 /// <reference path="./api.d.ts" />
 
 import { segmentSize1, segmentSize0 } from "./inventory";
+import { InventoryFilterByKeyword, InventoryFilterByTags } from "./inventory_filter";
 
 /**
  * @param {SteamInventories} inventories 
@@ -32,7 +33,7 @@ export function iterateInventory(inventories, iterator, from = -1, to = -1) {
 				return;	
 		}
 		segmentOffset = 0;
-		segment = inventories[++segmentIndex];
+		segment = inventories.segments[++segmentIndex];
 	}
 }
 
@@ -53,6 +54,39 @@ export function filterInventory(inventories, filter, from = -1, to = -1) {
 		return true;
 	}, from, to);
 	return { segments: [{ items, descriptions }], totalCount: items.length };
+}
+
+/**
+ * @param {SteamInventories} inventories 
+ * @param {SteamInventoryFilter} rules
+ * @param {number} [from] 
+ * @param {number} [to] 
+ * @returns {SteamInventories}
+ */
+export function filterInventoryByRules(inventories, rules, from = -1, to = -1) { 
+	let tagRules = rules.tags;
+	/** @type {((desc: SteamInventoryItemDescription) => boolean)[]} */
+	let filters = Object.keys(tagRules).map(category => 
+		InventoryFilterByTags.bind(this, category, Object.keys(tagRules[category])))
+
+	if (rules.keyword)
+		filters.push(InventoryFilterByKeyword.bind(this, rules.keyword.toLowerCase()));
+	
+	if (filters.length == 0)
+		return inventories;
+	
+	//Optimize one filter
+	if (filters.length == 1) {
+		let filter = filters[0];
+		return filterInventory(inventories, (index, item, desc) => filter(desc), from, to);
+	}
+
+	return filterInventory(inventories, (index, item, desc) => {
+		for (let filter of filters)
+			if (!filter(desc))
+				return false;
+		return true;
+	}, from, to);
 }
 
 /**

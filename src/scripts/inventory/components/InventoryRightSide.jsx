@@ -40,7 +40,7 @@ export function InventoryRightSide({
 
 	let image = getImageURL(description.icon_url_large, 330, 192);
 
-	return <div className="inventory_page_right" style={{ minHeight: '620px' }}>
+	return <div className="inventory_page_right" >
 		<div className="inventory_iteminfo" id="iteminfo1" style={{ opacity: 1, zIndex: 1 }}>
 			<div className="item_desc_content" id="iteminfo1_content">
 				<div className="item_desc_icon">
@@ -60,27 +60,40 @@ export function InventoryRightSide({
 						<div id="iteminfo1_item_type" className="">{description.type}</div>
 					</div>
 
-					{  // 描述
-						description.descriptions.map((desc, i) => {
+					<div className="item_desc_descriptors">
+						{  // 描述
+							(description.descriptions || []).map((desc, i) => {
+							let styleAttr = desc.color ? {color: `#${desc.color}`} : {};
+							return <div key={i} style={styleAttr}
+								className="item_desc_descriptors">{decodeSteamDescription(desc.value)}</div>
+							})}
+					</div>
+						
+					<div className="item_actions">
+						{  // 操作
+							(description.actions || []).map((action, i) =>
+								<a key={i} target="_blank" className="btn_small btn_grey_white_innerfade"
+									href={action.link}><span>{action.name}</span></a>
+							)}
+					</div>
+					
+					<div className="item_desc_descriptors">
+					{  // 给拥有者的消息, 例如: xxx 天后可以交易
+						(description.owner_descriptions || []).map((desc, i) => {
 						let styleAttr = desc.color ? {color: `#${desc.color}`} : {};
 						return <div key={i} style={styleAttr}
 							className="item_desc_descriptors">{decodeSteamDescription(desc.value)}</div>
-					})}
-					<div className="item_actions" id="iteminfo1_item_actions">
-						Action TODO
+							})}
+					</div>
+					
+					<div className="item_owner_actions">
+						{  // 操作
+							(description.owner_actions || []).map((action, i) =>
+								<a key={i} target="_blank" className="btn_small btn_grey_white_innerfade"
+									href={action.link}><span>{action.name}</span></a>
+							)}
 					</div>
 
-					
-					{  // 给拥有者的消息, 例如: xxx 天后可以交易
-						(description.owner_descriptions||[]).map((desc, i) => {
-						let styleAttr = desc.color ? {color: `#${desc.color}`} : {};
-						return <div key={i} style={styleAttr}
-							className="item_desc_descriptors">{decodeSteamDescription(desc.value)}</div>
-					})}
-					
-					<div className="item_owner_actions" id="iteminfo1_item_owner_actions">
-						Owner Action TODO
-					</div>
 				</div>
 			</div>
 			<div className="addon_tags_container">

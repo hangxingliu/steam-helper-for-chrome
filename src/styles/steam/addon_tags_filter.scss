@@ -1,0 +1,75 @@
+.addon_tag_filter_container {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+
+    border: 1px solid #303030;
+    background-color: #2A2A2B;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+.addon_tag_filter_column {
+	width: 280px;
+	margin: 0 10px;
+}
+.addon_tag_filter_title {
+	font-size: 16px;
+    color: white;
+    margin: 10px 0 5px 0;
+}
+.addon_tag_filter_btn {
+	display: inline-block;
+    line-height: 19px;
+    padding: 0 7px;
+    font-size: 11px;
+    box-shadow: none;
+    margin-right: 2px;
+    border-radius: 2px;
+    cursor: pointer;
+    margin-bottom: 3px;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+	text-overflow: ellipsis;
+
+	color: #b0aeac;
+    background-color: #384959;
+
+	&.selected {
+		color: #67c1f5;
+		background-color: #1E3846;
+	}
+}
+
+.addon_tag_filter_search {
+    position: relative;
+    .input {
+        width: 270px;
+        height: 20px;
+        color: white;
+        font-family: "Motiva Sans", Sans-serif;
+        font-weight: 300;
+        padding: 2px 0 2px 4px;
+        background-color: #384959;
+        
+        border: none;
+        // border-radius: 0px;
+        // border-width: 1px;
+        // border-style: solid;
+        // border-color: #182636 #45566A #45566A #182636;
+
+        &.valid { color: #67c1f5; background-color: #1E3846; }
+        &:focus { color: white; }
+    }
+    .btn {
+        position: absolute;
+        top: 0;
+        right: 5px;
+        border: none;
+        color: transparent;
+        background: url(https://steamcommunity-a.akamaihd.net/public/images/economy/market/search_icon.png) no-repeat center;
+        width: 26px;
+        height: 25px;
+        cursor: pointer;
+    }
+}

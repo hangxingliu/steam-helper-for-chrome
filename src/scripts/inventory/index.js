@@ -7,8 +7,7 @@ import ReactDOM from 'react-dom';
 import { Header } from './components/Header';
 import { getCurrentUserOverviewWithCache, listAllInventoryWithCache, clearSteamCache } from '../api/inventory';
 import { MainContainer } from './components/MainContainer';
-import { iterateInventory } from '../api/inventory_operator';
-import { getEmptyImageURL } from '../api/image';
+import { iterateInventory, getInventoryTagsManager, filterInventoryByRules } from '../api/inventory_operator';
 import { ButtonsUnderHeader } from './components/ButtonsUnderHeader';
 import { LoadError } from './components/LoadError';
 import { renderReactComponent } from './utils';
@@ -25,13 +24,21 @@ let categoryContext = null;
 
 /** @type {SteamInventories} */
 let inventories = null;
+/** @type {SteamInventories} */
+let filteredInventories = null;
+/** @type {string} */
 let inventoriesLoading = null;
 
 let selectedItem = null;
 let selectedDescription = null;
 
+/** @type {SteamInventoryTagsManager} */
+let inventoryTags = null;
+let filter = { tags: {}, keyword: ''};
+
 let currentPage = 1;
-let getTotalPage = () => inventories ? Math.ceil(inventories.totalCount / pageSize) : 1;
+let _getTotalPage = inv => inv ? Math.ceil(inv.totalCount / pageSize) : 1;
+let getTotalPage = () => _getTotalPage(filteredInventories || inventories);
 
 let error = null;
 
@@ -63,12 +70,25 @@ updateUI()
 			`segmentCount: ${inventories.segments.length}}`);
 		return updateUI();
 	})
+	.then(() => {
+		console.log(inventoryTags = getInventoryTagsManager(inventories))
+		return updateUI();
+	})
 	.catch(catchException);
 
 function onClickClearCache() {  clearSteamCache().then(() => location.reload()).catch(catchException); }
 
 function onClickSwitchPage(page = 1) { currentPage = page; return updateUI(); }
 function onClickInventory(item, desc) { selectedItem = item; selectedDescription = desc; return updateUI(); }
+function onFilterUpdate(newFiler) {
+	filter = newFiler;
+	inventoriesLoading = 'Filtering inventories ...';
+	return updateUI().then(() => { 
+		filteredInventories = filterInventoryByRules(inventories, filter);
+		inventoriesLoading = null;
+		return updateUI();
+	}).catch(catchException);
+}
 
 function catchException(ex) { 
 	error = ex ? (ex.message || ex) : 'Unknown exception!';
@@ -94,7 +114,7 @@ function updateUI() {
 
 	// choose inventory to display
 	let items = [], descriptions = [];
-	iterateInventory(inventories, (index, item, desc) => {
+	iterateInventory(filteredInventories || inventories, (index, item, desc) => {
 		items.push(item);
 		descriptions.push(desc);
 		return true;
@@ -105,8 +125,14 @@ function updateUI() {
 			<Header nickName={nickName} userName={userName} avatar={avatar}
 				steamID={steamID} needLogin={needLogin}></Header>
 			<ButtonsUnderHeader onClickClearCache={onClickClearCache}></ButtonsUnderHeader>
-			<MainContainer {...{ items, descriptions, pageSize, inventoriesLoading, error }}
-				{...{selectedItem, selectedDescription}}	
+			<MainContainer {...{ 
+					items, descriptions, 
+					pageSize, 
+					inventoriesLoading, error, 
+					inventoryTags,
+					selectedItem, selectedDescription,
+					filter, onFilterUpdate
+				}}	
 				categories={overviewInfo.category}
 				categorySelected={category}
 				page={currentPage} totalPage={getTotalPage()}

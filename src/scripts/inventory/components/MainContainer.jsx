@@ -9,6 +9,7 @@ import { Inventory } from './Inventory';
 import { LoadError } from './LoadError';
 import { CategoryLogo } from './CategoryLogo';
 import { getEmptyImageURL } from '../../api/image';
+import { TagsFilter } from './TagsFilter';
 
 
 /** @param {MainContainerComponent} props */
@@ -18,19 +19,29 @@ export function MainContainer(props) {
 		items, descriptions, onClickInventory,
 		pageSize, page, totalPage, onSwitchPage,
 		selectedItem, selectedDescription,
-		error } = props;
+		inventoryTags,
+		onFilterUpdate, filter,
+		error
+	} = props;
 
 	return <div id="BG_bottom" className="maincontent">
 		<div id="mainContents">
-			<CategoryTabs category={categories}></CategoryTabs>
-			<CategoryLogo logo={categorySelected?categorySelected.image:getEmptyImageURL()}></CategoryLogo>
-			{error ? <LoadError reason={error} /> : ''}
-			{inventoriesLoading ? <Loading message={inventoriesLoading}></Loading> : ''}
+			<CategoryTabs category={categories} />
+			<CategoryLogo logo={categorySelected ? categorySelected.image : getEmptyImageURL()} />
+			
+			{error ?
+				<LoadError reason={error} /> : ''}
+
+			{inventoriesLoading ?
+				<Loading message={inventoriesLoading} /> : ''}
+
+			{inventoryTags ?
+				<TagsFilter tagsManager={inventoryTags}
+					filter={filter} onFilterUpdate={onFilterUpdate} /> : ''}
+
 			<Inventory {...{ pageSize, page, totalPage, items, descriptions, onSwitchPage, onClickInventory }}
 				{...{selectedItem, selectedDescription}}
-				category={categorySelected}
-				
-				></Inventory>
+				category={categorySelected} />
 		</div>
 	</div>;
 }
