@@ -1,7 +1,6 @@
 //@ts-check
 /// <reference path="./api.d.ts" />
 
-import { segmentSize1, segmentSize0 } from "./inventory";
 import { InventoryFilterByKeyword, InventoryFilterByTags } from "./inventory_filter";
 
 /**
@@ -16,13 +15,12 @@ export function iterateInventory(inventories, iterator, from = -1, to = -1) {
 	if (from < 0) from = 0;
 	if (to < 0) to = inventories.totalCount;
 
-	
-	let segmentIndex = 0, segmentOffset = from;
-	if (from >= segmentSize0) segmentIndex = 1 + Math.floor((from - segmentSize0) / segmentSize1);
-	if (from >= segmentSize0) segmentOffset = (from - segmentSize0) % segmentSize1;
-
+	let { segmentIndex, segmentOffset } = locateInInventories(inventories, from);
 	let segment = inventories.segments[segmentIndex];
 	
+	// invalid index
+	if (segmentIndex < 0 || segmentOffset < 0) return;
+
 	for (let i = from; i < to;) { 
 		if (!segment) return;
 
@@ -35,6 +33,28 @@ export function iterateInventory(inventories, iterator, from = -1, to = -1) {
 		segmentOffset = 0;
 		segment = inventories.segments[++segmentIndex];
 	}
+}
+
+/**
+ * @param {SteamInventories} inventories 
+ * @param {number} index 
+ */
+function locateInInventories(inventories, index) { 
+	let { segments, totalCount } = inventories;
+	const invalidResult = { segmentIndex: -1, segmentOffset: -1 };
+	if (index < 0 || index > totalCount)
+		return invalidResult;
+	let segmentIndex = 0;
+	for (let i = 0; i < segments.length; i++) {
+		let length = segments[i].items.length
+		if (index >= length) {
+			index -= length;
+			segmentIndex++;
+			continue;
+		}
+		return { segmentIndex, segmentOffset: index };
+	}
+	return invalidResult;
 }
 
 /**

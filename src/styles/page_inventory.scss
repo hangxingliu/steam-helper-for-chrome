@@ -43,6 +43,15 @@ body {
     }
 }
 
+.price_info_loading {
+    display: inline-flex;
+    margin-right: 20px;
+    img {height: 24px;}
+}
+.item_trade_market_info {
+    margin-bottom: 10px;
+}
+
 .itemHolder {
     height: 118px !important;
     .item {
@@ -52,6 +61,7 @@ body {
         text-align: center;
         overflow: hidden;
         text-overflow: ellipsis;
+        .last24hrs { font-size: .6em; }
         &.amount { font-size: 18px;}
     }
 }
@@ -67,7 +77,8 @@ body {
 #mainContents {
     padding-top: 15px;
     padding-bottom: 15px;
-    
+    margin-bottom: 100px;
+
     #inventories {
         height: 620px;
         .inventory_ctn {

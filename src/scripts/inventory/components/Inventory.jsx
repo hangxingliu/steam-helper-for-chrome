@@ -27,6 +27,8 @@ export function Inventory({
 	selectedItem,
 	selectedDescription,
 
+	priceLoadingCount = 0,
+
 	onSwitchPage = DEFAULT_PAGE_SWITCHER,
 	onClickInventory = DEFAULT_CLICK_INVENTORY
 }) {
@@ -53,6 +55,12 @@ export function Inventory({
 					</div>
 				</div>
 				<div id="inventory_pagecontrols">
+					{priceLoadingCount > 0 ?
+						<div className="price_info_loading">
+							<span>价格信息加载中 (<b>{priceLoadingCount}</b>) ...	</span>
+							<img src="https://steamcommunity-a.akamaihd.net/public/images/login/throbber.gif" />
+						</div> : ''}
+
 					<a className={"pagecontrol_element pagebtn " + (hasNextPage ? '' : 'disabled')} 
 						onClick={hasNextPage ? () => onSwitchPage(page+1) : undefined}
 						id="pagebtn_next"> &gt; </a>

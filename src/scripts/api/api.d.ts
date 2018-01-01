@@ -9,7 +9,30 @@ type SteamUserInventoryOverview = {
 	strLanguage?: string;
 
 	category?: SteamInventoryCategory[];
+	wallet?: SteamWalletInfo;
 };
+type SteamWalletInfo = {
+	currency: number;
+	country: string;
+	balance: number;
+};
+
+type SteamMarketPriceInfo = {
+	lowestPrice: string;
+	last24hrs: number;
+	timestamp: number;
+};
+
+type SteamMarketPriceInfoQuery = SteamMarketPriceInfoQueryItem[];
+type SteamMarketPriceInfoQueryItem = {
+	appId: string;
+	marketHashName: string;
+};
+
+type SteamMarketPricePartResult =
+	(SteamMarketPriceInfoQueryItem & SteamMarketPriceInfo & {
+		fromCache: boolean
+	})[];
 
 type SteamInventoryCategoryContext = {
 	count: number;
@@ -70,6 +93,8 @@ type SteamInventoryItemDescription =  {
 	market_marketable_restriction: number;
 	marketable: number;
 	tags: SteamInventoryTag[];
+
+	marketPrice?: SteamMarketPriceInfo & { fromCache?: boolean };
 };
 
 type SteamInventoryQueryResult = {

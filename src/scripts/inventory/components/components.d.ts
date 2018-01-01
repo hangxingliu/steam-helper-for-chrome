@@ -11,6 +11,8 @@ type MainContainerComponent = {
 	pageSize: number;
 	totalPage: number;
 
+	priceLoadingCount: number;
+
 	onSwitchPage: (page: number) => any;
 	onClickInventory: (item, desc) => any;
 

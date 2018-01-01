@@ -11,6 +11,7 @@ import { iterateInventory, getInventoryTagsManager, filterInventoryByRules } fro
 import { ButtonsUnderHeader } from './components/ButtonsUnderHeader';
 import { LoadError } from './components/LoadError';
 import { renderReactComponent } from './utils';
+import { queryMarketPrices, queryMarketPricesOnlyFromCache, getPriceQueryQueueLength, PRICE_API_LIMIT_PER_MINUTE, getLast429Timestamp } from '../api/inventory_price';
 
 const pageSize = 25;
 
@@ -79,8 +80,18 @@ updateUI()
 function onClickClearCache() {  clearSteamCache().then(() => location.reload()).catch(catchException); }
 
 function onClickSwitchPage(page = 1) { currentPage = page; return updateUI(); }
-function onClickInventory(item, desc) { selectedItem = item; selectedDescription = desc; return updateUI(); }
+function onClickInventory(item, desc) {
+	selectedItem = item;
+	selectedDescription = desc;
+	queryMarketPrices([{ appId: desc.appid, marketHashName: desc.market_hash_name }],
+		overviewInfo.wallet,
+		(results) => { void results; return updateUI() },
+		(ex) => console.error(ex),
+		{ justNow: true, noCache: true });
+	return updateUI();
+}
 function onFilterUpdate(newFiler) {
+	currentPage = 1; // reset page to 1
 	filter = newFiler;
 	inventoriesLoading = 'Filtering inventories ...';
 	return updateUI().then(() => { 
@@ -89,6 +100,7 @@ function onFilterUpdate(newFiler) {
 		return updateUI();
 	}).catch(catchException);
 }
+
 
 function catchException(ex) { 
 	error = ex ? (ex.message || ex) : 'Unknown exception!';
@@ -104,41 +116,87 @@ function updateUI() {
 	if (!overviewInfo)
 		return renderReactComponent(<div>
 			<Header nickName="Loading..."></Header>
-			{error ? <LoadError reason={error} />: ''}
+			{error ? <LoadError reason={error} /> : ''}
 		</div>);
 
 	let { nickName, userName, avatar, steamID, needLogin } = overviewInfo;
-	if (needLogin) { 
+	if (needLogin) {
 		nickName = '你还没有登录!';
 	}
 
 	// choose inventory to display
-	let items = [], descriptions = [];
+	/** @type {SteamInventoryItem[]} */
+	let items = [];
+	/** @type {SteamInventoryItemDescription[]} */
+	let descriptions = [];
+
 	iterateInventory(filteredInventories || inventories, (index, item, desc) => {
 		items.push(item);
 		descriptions.push(desc);
 		return true;
 	}, (currentPage - 1) * pageSize, currentPage * pageSize);// one page
 
-	return renderReactComponent(
-		<div>
-			<Header nickName={nickName} userName={userName} avatar={avatar}
-				steamID={steamID} needLogin={needLogin}></Header>
-			<ButtonsUnderHeader onClickClearCache={onClickClearCache}></ButtonsUnderHeader>
-			<MainContainer {...{ 
-					items, descriptions, 
-					pageSize, 
-					inventoriesLoading, error, 
+	// show price from cache
+	let query = descriptions.map(it => ({ appId: String(it.appid), marketHashName: it.market_hash_name }));
+	return queryMarketPricesOnlyFromCache(query)
+		.then(({ results, missing }) => {
+			// merge price info on descriptions
+			let map = {};
+			for (let result of results)
+				map[newInventorySymbol(result)] = result;
+			
+			console.log(results);
+			descriptions = descriptions.map(desc => Object.assign(
+				{ marketPrice: map[newInventorySymbol(desc)] || undefined }, desc));
+			
+			// automatic queue
+			let queueLength = getPriceQueryQueueLength();
+			let last429 = getLast429Timestamp();
+			console.log(`missing price query length: ${missing.length}; ` +
+				`query queue length: ${getPriceQueryQueueLength()}; ` +
+				`last "429" time: ${last429?new Date(last429).toLocaleTimeString():null}`);
+			
+			if (last429 < (Date.now() - 60 * 1000) &&	
+				missing.length > 0 && queueLength == 0 && 
+				missing.length < PRICE_API_LIMIT_PER_MINUTE) { 
+
+				console.log(`Start query prices automatically ...`);
+				queryMarketPrices(missing, overviewInfo.wallet,
+					(results) => { void results; return updateUI() },
+					(ex) => console.error(ex), {});
+			}
+
+			return true;
+		}).then(() => renderReactComponent(
+			// main html render >>>
+			<div>
+				<Header nickName={nickName} userName={userName} avatar={avatar}
+					steamID={steamID} needLogin={needLogin}></Header>
+				<ButtonsUnderHeader onClickClearCache={onClickClearCache}></ButtonsUnderHeader>
+				<MainContainer {...{
+					items, descriptions,
+					pageSize,
+					inventoriesLoading, error,
 					inventoryTags,
 					selectedItem, selectedDescription,
 					filter, onFilterUpdate
-				}}	
-				categories={overviewInfo.category}
-				categorySelected={category}
-				page={currentPage} totalPage={getTotalPage()}
-				onSwitchPage={onClickSwitchPage}
-				onClickInventory={onClickInventory}
-			></MainContainer>
-		</div>);
+				}}
+					categories={overviewInfo.category}
+					categorySelected={category}
+					page={currentPage} totalPage={getTotalPage()}
+					onSwitchPage={onClickSwitchPage}
+					onClickInventory={onClickInventory}
+
+					priceLoadingCount={getPriceQueryQueueLength()}
+				></MainContainer>
+			</div>)
+		);
+}
+
+/** @param {{appId?: string; marketHashName?: string; appid?: number; market_hash_name?: string}} inv */
+function newInventorySymbol(inv) { 
+	if (inv.market_hash_name)
+		return JSON.stringify([String(inv.appid), inv.market_hash_name]);
+	return JSON.stringify([inv.appId, inv.marketHashName]);
 }
 

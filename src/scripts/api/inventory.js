@@ -42,6 +42,16 @@ export function getCurrentUserOverview() {
 			try { categoryObj = JSON.parse(categoryJSON ? categoryJSON[1] : '{}'); }
 			catch (ex) { console.warn(`JSON of g_rgAppContextData is invalid! (${ex ? ex.message : ''})`); }
 
+			let walletJSON = html.match(/g_rgWalletInfo\s*=\s*([\s\S]+?);/);
+			let walletObj = {};
+			try { walletObj = JSON.parse(walletJSON ? walletJSON[1] : '{}'); }
+			catch (ex) { console.warn(`JSON of g_rgWalletInfo is invalid! (${ex ? ex.message : ''})`); }
+			result.wallet = {
+				currency: walletObj.wallet_currency || 0,
+				country: walletObj.wallet_country || '',
+				balance: (parseInt(walletObj.wallet_balance || '0') / 100)
+			};
+
 			/** @type {HTMLImageElement} */
 			let $avatar = doc.querySelector('.profile_small_header_avatar .playerAvatar img');
 			result.avatar = $avatar ? $avatar.src : '';

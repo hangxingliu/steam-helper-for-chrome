@@ -21,3 +21,10 @@ type DBCacheUserOverview = {
 	data: SteamUserInventoryOverview;
 	timestamp: number;
 };
+type DBCacheMarketPrice = {
+	appId: string;
+	marketHashName: string;
+	lowestPrice: string;
+	last24hrs: number;
+	timestamp: number;
+}

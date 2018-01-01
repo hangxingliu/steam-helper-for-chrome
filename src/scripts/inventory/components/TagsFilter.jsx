@@ -47,7 +47,7 @@ export function TagsFilter({
 			<div className="addon_tag_filter_title">关键字</div>
 			<form id="keyword_search" onSubmit={setKeywordFilter.bind(this, onFilterUpdate, filter)}>
 				<div className="addon_tag_filter_search">
-					<input className={"input "+(filter.keyword?"valid":"")} required={true} type="text" id="txtKeyword"
+					<input className={"input "+(filter.keyword?"valid":"")} type="text" id="txtKeyword"
 						defaultValue={filter.keyword}
 						placeholder="Search" autoComplete="off" tabIndex={1} />
 					<input className="btn" id="btnKeyword" type="submit" value="Submit" tabIndex={3} />
