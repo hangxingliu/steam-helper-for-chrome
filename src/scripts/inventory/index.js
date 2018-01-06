@@ -77,9 +77,16 @@ updateUI()
 	})
 	.catch(catchException);
 
-function onClickClearCache() {  clearSteamCache().then(() => location.reload()).catch(catchException); }
+function onClickClearCache() {
+	clearSteamCache()
+		.then(() => location.reload())
+		.catch(catchException);
+}
 
-function onClickSwitchPage(page = 1) { currentPage = page; return updateUI(); }
+function onClickSwitchPage(page = 1) {
+	currentPage = page; return updateUI();
+}
+
 function onClickInventory(item, desc) {
 	selectedItem = item;
 	selectedDescription = desc;
@@ -90,6 +97,7 @@ function onClickInventory(item, desc) {
 		{ justNow: true, noCache: true });
 	return updateUI();
 }
+
 function onFilterUpdate(newFiler) {
 	currentPage = 1; // reset page to 1
 	filter = newFiler;
@@ -145,7 +153,7 @@ function updateUI() {
 			for (let result of results)
 				map[newInventorySymbol(result)] = result;
 			
-			console.log(results);
+			// console.log(results);
 			descriptions = descriptions.map(desc => Object.assign(
 				{ marketPrice: map[newInventorySymbol(desc)] || undefined }, desc));
 			

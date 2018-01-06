@@ -1,3 +1,5 @@
+/// <reference path="../../api/api.d.ts" />
+
 type MainContainerComponent = {
 	error?: string;
 
@@ -22,4 +24,16 @@ type MainContainerComponent = {
 	inventoryTags: SteamInventoryTagsManager;
 	filter: SteamInventoryFilter;
 	onFilterUpdate: (newFilter: SteamInventoryFilter) => any;
+};
+
+type InventoryItemComponent = {
+	item: SteamInventoryItem,
+	desc: SteamInventoryItemDescription,
+	onClick: (item: SteamInventoryItem, desc: SteamInventoryItemDescription) => any;
+};
+
+type InventoryRightSideComponent = {
+	item: SteamInventoryItem,
+	description: SteamInventoryItemDescription,
+	category: SteamInventoryCategory
 };
