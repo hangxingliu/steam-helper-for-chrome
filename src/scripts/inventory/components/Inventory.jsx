@@ -27,6 +27,8 @@ export function Inventory({
 	selectedItem,
 	selectedDescription,
 
+	actionsHandler,
+
 	priceLoadingCount = 0,
 
 	onSwitchPage = DEFAULT_PAGE_SWITCHER,
@@ -41,9 +43,10 @@ export function Inventory({
 	return <div id="tabcontent_inventory">
 		<div className="view_inventory_page" id="active_inventory_page">
 			<InventoryRightSide 
-				item={selectedItem || items[0]} 
-				description={selectedDescription || descriptions[0]} 
-				category={category} />
+				item={selectedItem || items[0]}
+				description={selectedDescription || descriptions[0]}
+				category={category}
+				actionsHandler={actionsHandler} />
 			<div className="inventory_page_left">
 				<div className="trade_item_box selectableNone" id="inventories">
 					<div className="inventory_ctn">

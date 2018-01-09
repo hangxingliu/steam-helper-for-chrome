@@ -24,6 +24,8 @@ type MainContainerComponent = {
 	inventoryTags: SteamInventoryTagsManager;
 	filter: SteamInventoryFilter;
 	onFilterUpdate: (newFilter: SteamInventoryFilter) => any;
+
+	actionsHandler: InventoryActionsHandler;	
 };
 
 type InventoryItemComponent = {
@@ -35,5 +37,11 @@ type InventoryItemComponent = {
 type InventoryRightSideComponent = {
 	item: SteamInventoryItem,
 	description: SteamInventoryItemDescription,
-	category: SteamInventoryCategory
+	category: SteamInventoryCategory,
+
+	actionsHandler: InventoryActionsHandler;
+};
+
+type InventoryActionsHandler = {
+	toGems: Function;
 };

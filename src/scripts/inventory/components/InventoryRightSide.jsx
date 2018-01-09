@@ -32,7 +32,7 @@ export class InventoryRightSide extends React.Component {
 	}
 
 	render() {
-		let { item, description, category } = this.props;
+		let { item, description, category, actionsHandler } = this.props;
 		if (this.state.loading || !item || !description)
 			return (<div className="inventory_page_right" style={{ minHeight: '620px' }}>
 				<div className="inventory_iteminfo" id="iteminfo1" style={{ opacity: 1, zIndex: 1 }}>
@@ -97,10 +97,10 @@ export class InventoryRightSide extends React.Component {
 
 						<div className="item_actions">
 							{  // 操作
-								(description.actions || []).map((action, i) =>
-									<a key={i} target="_blank" className="btn_small btn_grey_white_innerfade"
-										href={action.link}><span>{action.name}</span></a>
-								)}
+								(description.actions || []).map((action, i) => {
+									// 普通链接
+									return getActionBtn(i, action.name, action.link);
+								})}
 						</div>
 
 						<div className="item_desc_descriptors">
@@ -114,10 +114,13 @@ export class InventoryRightSide extends React.Component {
 
 						<div className="item_owner_actions">
 							{  // 操作
-								(description.owner_actions || []).map((action, i) =>
-									<a key={i} target="_blank" className="btn_small btn_grey_white_innerfade"
-										href={action.link}><span>{action.name}</span></a>
-								)}
+								(description.owner_actions || []).map((action, i) => {
+									// 兑换宝珠
+									if (action.link.match(/^javascript:GetGooValue/))
+										return getInventoryToGemsBtn(i, description.gems, actionsHandler.toGems);
+									// 普通链接
+									return getActionBtn(i, action.name, action.link);
+								})}
 						</div>
 
 					</div>
@@ -157,4 +160,17 @@ export class InventoryRightSide extends React.Component {
 
 function timestamp2str(ts = 0) { 
 	return new Date(ts).toLocaleString();
+}
+
+function getActionBtn(key, text, link) { 
+	return <a key={key} target="_blank" className="btn_small btn_grey_white_innerfade"
+		href={link}><span>{text}</span></a>;
+}
+function getInventoryToGemsBtn(key, gems, onClickListener) { 
+	if (!gems)
+		return <a key={key} className="btn_small btn_darkblue_white_innerfade btn_disabled">
+			合成宝珠 (查询中...)</a>;
+	
+	return <a key={key} className="btn_small btn_darkblue_white_innerfade"
+		onClick={onClickListener}><span>合成 <b style={{ fontSize: '1.2em' }}>{gems}</b> 个宝珠</span></a>;
 }

@@ -1,4 +1,4 @@
-type SteamUserInventoryOverview = {
+type SteamUserOverview = {
 	needLogin: boolean;
 
 	avatar?: string;
@@ -10,6 +10,8 @@ type SteamUserInventoryOverview = {
 
 	category?: SteamInventoryCategory[];
 	wallet?: SteamWalletInfo;
+
+	fromCache?: boolean;
 };
 type SteamWalletInfo = {
 	currency: number;
@@ -95,6 +97,7 @@ type SteamInventoryItemDescription =  {
 	tags: SteamInventoryTag[];
 
 	marketPrice?: SteamMarketPriceInfo & { fromCache?: boolean };
+	gems?: number;
 };
 
 type SteamInventoryQueryResult = {
@@ -142,9 +145,10 @@ type SteamInventoryRawResponse = {
 	assets: any[];
 	descriptions: any[];
 	rwgrsn: number;
-	success: number; 
+	success: number;
 	total_inventory_count: number;
 
 	last_assetid?: string;
 	more_items?: number;
-}
+};
+

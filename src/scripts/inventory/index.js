@@ -2,20 +2,28 @@
 /// <reference path="../api/api.d.ts" />
 
 import React from 'react';
-import ReactDOM from 'react-dom';
 
 import { Header } from './components/Header';
-import { getCurrentUserOverviewWithCache, listAllInventoryWithCache, clearSteamCache } from '../api/inventory';
+import { listAllInventoryWithCache, clearSteamCache } from '../api/inventory';
+import { getUserOverview } from "../api/user_overview";
 import { MainContainer } from './components/MainContainer';
 import { iterateInventory, getInventoryTagsManager, filterInventoryByRules } from '../api/inventory_operator';
 import { ButtonsUnderHeader } from './components/ButtonsUnderHeader';
 import { LoadError } from './components/LoadError';
 import { renderReactComponent } from './utils';
-import { queryMarketPrices, queryMarketPricesOnlyFromCache, getPriceQueryQueueLength, PRICE_API_LIMIT_PER_MINUTE, getLast429Timestamp } from '../api/inventory_price';
+import {
+	queryMarketPrices,
+	queryMarketPricesOnlyFromCache,
+	getPriceQueryQueueLength,
+	PRICE_API_LIMIT_PER_MINUTE,
+	getLast429Timestamp
+} from '../api/inventory_price';
+import { logUserOverview, logInventories } from './log';
+import { isInventoryHasGems, queryInventoryGemsByDescription } from '../api/inventory_to_gem';
 
 const pageSize = 25;
 
-/** @type {SteamUserInventoryOverview} */
+/** @type {SteamUserOverview} */
 let overviewInfo = null;
 
 /** @type {SteamInventoryCategory} */
@@ -43,44 +51,56 @@ let getTotalPage = () => _getTotalPage(filteredInventories || inventories);
 
 let error = null;
 
-updateUI()
-	.then(() => getCurrentUserOverviewWithCache())
-	.then(overview => {
-		console.log(`CurrentUserOverview: {userName: ${overview.userName},` +
-			`steamID: ${overview.steamID}, strLanguage: ${overview.strLanguage}}`);
-		overviewInfo = overview;
-		return updateUI();
-	})
-	.then(() => {
-		if (overviewInfo.needLogin)
-			return Promise.reject(`Please login Steam firstly!`);
-		category = overviewInfo.category.filter(c => c.appid == '753')[0]; // Steam
-		categoryContext = category.context.filter(c => c.id == '6')[0]; // Community
-		return Promise.resolve();
-	})
-	.then(() => listAllInventoryWithCache(overviewInfo.steamID, category.appid, categoryContext.id,
+(function main() {
+	updateUI()
+		.then(() => getUserOverview())
+		.then(overview => {
+			logUserOverview(overviewInfo = overview);
+
+			// if need login
+			if (overviewInfo.needLogin)
+				return Promise.reject(`Please login Steam firstly!`);
+			
+			// if this overview is cached, get latest overview async (to keeping sessionId is correct)
+			if (overviewInfo.fromCache)
+				fetchLatestUserOverviewAsync();
+			
+			category = overviewInfo.category.filter(c => c.appid == '753')[0]; // Steam
+			categoryContext = category.context.filter(c => c.id == '6')[0]; // Community
+			
+			return updateUI();
+		})
+		.then(fetchAndDisplayInventories)
+		.catch(onCatchException);
+})();
+
+function fetchLatestUserOverviewAsync() { 
+	getUserOverview(false)
+		.then(info => logUserOverview(overviewInfo = info))
+		.catch(onCatchException);
+}
+
+function fetchAndDisplayInventories() {
+	return listAllInventoryWithCache(overviewInfo.steamID, category.appid, categoryContext.id,
 		overviewInfo.strLanguage, (now, total) => {
 			inventoriesLoading = `${now} / ${total}`;
 			return updateUI();
-		}))
-	.then(_inventories => {
-		inventories = _inventories;
-		inventoriesLoading = null;
-		
-		console.log(`GotAllInventory: {totalCount: ${inventories.totalCount}, ` +
-			`segmentCount: ${inventories.segments.length}}`);
-		return updateUI();
-	})
-	.then(() => {
-		console.log(inventoryTags = getInventoryTagsManager(inventories))
-		return updateUI();
-	})
-	.catch(catchException);
+		}).then(_inventories => {
+			inventories = _inventories;
+			inventoriesLoading = null;
+			
+			logInventories(inventories);
+			return updateUI();
+		}).then(() => {
+			console.log(inventoryTags = getInventoryTagsManager(inventories))
+			return updateUI();
+		});
+}
 
 function onClickClearCache() {
 	clearSteamCache()
 		.then(() => location.reload())
-		.catch(catchException);
+		.catch(onCatchException);
 }
 
 function onClickSwitchPage(page = 1) {
@@ -95,6 +115,12 @@ function onClickInventory(item, desc) {
 		(results) => { void results; return updateUI() },
 		(ex) => console.error(ex),
 		{ justNow: true, noCache: true });
+	
+	if (isInventoryHasGems(desc))
+		queryInventoryGemsByDescription(desc)
+			.then(info => { selectedDescription.gems = info.gems; return updateUI(); })
+			.catch(onCatchException);
+	
 	return updateUI();
 }
 
@@ -106,11 +132,14 @@ function onFilterUpdate(newFiler) {
 		filteredInventories = filterInventoryByRules(inventories, filter);
 		inventoriesLoading = null;
 		return updateUI();
-	}).catch(catchException);
+	}).catch(onCatchException);
 }
 
+function onClickInventoryToGems() { 
 
-function catchException(ex) { 
+}
+
+function onCatchException(ex) { 
 	error = ex ? (ex.message || ex) : 'Unknown exception!';
 	console.error(`Catch Exception: ${error}`);
 	console.error(ex);
@@ -119,6 +148,7 @@ function catchException(ex) {
 	updateUI();
 }
 
+/** @returns {Promise} */
 function updateUI() {
 
 	if (!overviewInfo)
@@ -160,9 +190,9 @@ function updateUI() {
 			// automatic queue
 			let queueLength = getPriceQueryQueueLength();
 			let last429 = getLast429Timestamp();
-			console.log(`missing price query length: ${missing.length}; ` +
-				`query queue length: ${getPriceQueryQueueLength()}; ` +
-				`last "429" time: ${last429?new Date(last429).toLocaleTimeString():null}`);
+			// console.log(`missing price query length: ${missing.length}; ` +
+			// 	`query queue length: ${getPriceQueryQueueLength()}; ` +
+			// 	`last "429" time: ${last429?new Date(last429).toLocaleTimeString():null}`);
 			
 			if (last429 < (Date.now() - 60 * 1000) &&	
 				missing.length > 0 && queueLength == 0 && 
@@ -195,8 +225,10 @@ function updateUI() {
 					onSwitchPage={onClickSwitchPage}
 					onClickInventory={onClickInventory}
 
+					actionsHandler={{toGems: onClickInventoryToGems}}
+
 					priceLoadingCount={getPriceQueryQueueLength()}
-				></MainContainer>
+				/>
 			</div>)
 		);
 }
