@@ -61,12 +61,6 @@ export function listInventory(steamId = '', appId = '753', contextId = '6', {
 	});
 }
 
-export function clearSteamCache() { 
-	return Tables.cacheInventoryInfo.clear()
-		.then(() => Tables.cacheInventoryData.clear())
-		.then(() => Tables.cacheUserOverview.clear());
-}
-
 /** @type {(now: number, total: number) => Promise} */
 export const DEFAULT_PROGRESS_CALLBACK = (now, total) => Promise.resolve(true);
 

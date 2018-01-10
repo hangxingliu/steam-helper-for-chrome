@@ -27,11 +27,24 @@ type DBCacheMarketPrice = {
 	lowestPrice: string;
 	last24hrs: number;
 	timestamp: number;
-}
+};
 type DBCacheGems = {
 	appId: string;
 	itemType: number;
 	borderColor: number;
 	gems: number;
 	timestamp: number;
-}
+};
+type TableRemovedItem = {
+	steamId: string;
+	appId: string;
+	contextId: string;
+	assetId: string;
+	
+	reason: string;
+	timestamp: number;
+};
+type TableConfigItem = {
+	key: string;
+	value: string;
+};

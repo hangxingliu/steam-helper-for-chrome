@@ -4,7 +4,7 @@
 import React from 'react';
 
 import { Header } from './components/Header';
-import { listAllInventoryWithCache, clearSteamCache } from '../api/inventory';
+import { listAllInventoryWithCache } from '../api/inventory';
 import { getUserOverview } from "../api/user_overview";
 import { MainContainer } from './components/MainContainer';
 import { iterateInventory, getInventoryTagsManager, filterInventoryByRules } from '../api/inventory_operator';
@@ -25,6 +25,8 @@ import { Dialog } from './components/Dialog';
 import { LoadingDialog } from './components/LoadingDialog';
 import { HTMLBodyDialog } from './components/HTMLBodyDialog';
 import { ErrorDialog } from './components/ErrorDialog';
+import { refreshCache } from '../api/database/core';
+import { SettingsDialog } from './components/SettingsDialog';
 
 const pageSize = 25;
 
@@ -103,7 +105,7 @@ function fetchAndDisplayInventories() {
 }
 
 function onClickClearCache() {
-	clearSteamCache()
+	refreshCache()
 		.then(() => location.reload())
 		.catch(onCatchException);
 }
@@ -237,8 +239,9 @@ function updateUI() {
 			// main html render >>>
 			<div>
 				<Header nickName={nickName} userName={userName} avatar={avatar}
-					steamID={steamID} needLogin={needLogin}></Header>
-				<ButtonsUnderHeader onClickClearCache={onClickClearCache}></ButtonsUnderHeader>
+					steamID={steamID} needLogin={needLogin} />
+				<ButtonsUnderHeader
+					onClickClearCache={onClickClearCache}/>
 				<MainContainer {...{
 					items, descriptions,
 					pageSize,

@@ -25,7 +25,7 @@ type MainContainerComponent = {
 	filter: SteamInventoryFilter;
 	onFilterUpdate: (newFilter: SteamInventoryFilter) => any;
 
-	actionsHandler: InventoryActionsHandler;	
+	actionsHandler: InventoryActionsHandler;
 };
 
 type InventoryItemComponent = {

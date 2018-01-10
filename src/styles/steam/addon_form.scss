@@ -1,0 +1,19 @@
+.formGroupTitle {
+	margin-top: 20px;
+	margin-bottom: 8px;
+	color: #8F98A0;
+	font-size: 14px;
+}
+.formRow{
+	input {width: 100%;}
+	&.small {
+		.formRowTitle {
+			font-size: 13px !important;
+			width: 86px;
+		}
+		padding-left: 80px;
+	}
+}
+.for_text_input {
+	display: block !important;
+}

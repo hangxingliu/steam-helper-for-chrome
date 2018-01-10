@@ -7,10 +7,12 @@
 @import "./steam/profilev2.scss";
 @import "./steam/economy.scss";
 @import "./steam/economy_inventory.scss";
+@import "./steam/groupadmin.scss";
 
 @import "./steam/addon_tags.scss";
 @import "./steam/addon_tags_filter.scss";
 @import "./steam/addon_dialog.scss";
+@import "./steam/addon_form.scss";
 
 body {
 	background: #1b2838;
@@ -19,6 +21,22 @@ body {
     font-size: 14px;
     margin: 0;
     padding: 0;
+}
+
+.btn_settings {
+    float: right;
+    margin: 0 16px;
+    display: flex;
+    height: 32px;
+    align-items: center;
+    padding: 1px 10px;
+
+    img {
+        height: 14px;    
+    }
+    span {
+        margin-left: 5px;
+    }
 }
 
 .hover_item_sub_name { //copy from .hover_item_name
@@ -54,9 +72,35 @@ body {
 }
 
 .itemHolder {
-    height: 118px !important;
+    $fullHeight: 118px;
+    $fullWidth: 98px;
+
+    height: $fullHeight !important;
+
+    .removed-overlay {
+        position: absolute;
+        z-index: 100;
+        width: $fullWidth;
+        height: $fullHeight;
+        background-color: rgba($color: #000000, $alpha: 0.3);
+        font-size: 2em;
+        text-align: center;
+        line-height: 100px;
+    }
+    .select-overlay{
+        position: absolute;
+        z-index: 99;
+        right: 2px;
+        top: 2px;
+        text-align: right;
+        input {
+            width: 20px;
+            height: 20px;        
+        }
+    }
+
     .item {
-        height: 116px !important;
+        height: ($fullHeight - 2px) !important;
     }
     .item_info {
         text-align: center;
