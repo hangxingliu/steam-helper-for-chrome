@@ -27,6 +27,7 @@ import { HTMLBodyDialog } from './components/HTMLBodyDialog';
 import { ErrorDialog } from './components/ErrorDialog';
 import { refreshCache } from '../api/database/core';
 import { SettingsDialog } from './components/SettingsDialog';
+import { queryAreInventoriesRemoved } from '../api/inventory_removed';
 
 const pageSize = 25;
 
@@ -152,6 +153,7 @@ function onClickInventoryToGems(item, description) {
 			showDialog(<LoadingDialog title="宝珠兑换中" message={`将 ${name} 兑换成 ${gems} 个宝珠 ...`} />)
 				.then(() => convertInventoryToGems(overviewInfo, item, gems))
 				.then(result => showDialog(<HTMLBodyDialog title="兑换成功" htmlBody={result} />))
+				.then(updateUI)
 				.catch(showErrorDialog);
 
 		}), getDialogCancelBtn()]}/>)
@@ -234,7 +236,11 @@ function updateUI() {
 					(ex) => console.error(ex), {});
 			}
 
-			return true;
+			// query is inventories removed
+			return queryAreInventoriesRemoved(overviewInfo, items);
+		}).then(removedReasons => {
+			return descriptions = descriptions.map( (d,i) =>
+				Object.assign(d, { removedReason: removedReasons[i] }));
 		}).then(() => renderReactComponent(
 			// main html render >>>
 			<div>

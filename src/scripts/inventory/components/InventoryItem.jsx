@@ -54,6 +54,8 @@ export class InventoryItem extends React.Component {
 		}
 
 		return <div className="itemHolder">
+			{/* <div className="select-overlay"><input type="checkbox" /></div>	 */}
+			{desc.removedReason ? <div className="removed-overlay">{desc.removedReason}</div> : null}
 			<div className="item context2" style={styleAttr}>
 				<img src={imageIcon} />
 				{moreThanOne

@@ -96,8 +96,12 @@ type SteamInventoryItemDescription =  {
 	marketable: number;
 	tags: SteamInventoryTag[];
 
+	//===================
+	// Custom attributes
 	marketPrice?: SteamMarketPriceInfo & { fromCache?: boolean };
 	gems?: number;
+	removedReason?: string;
+
 };
 
 type SteamInventoryQueryResult = {

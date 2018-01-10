@@ -5,6 +5,7 @@
 import { Dexie } from "dexie";
 import { Tables } from "./database/core";
 import { ajaxJSON, x_www_form_urlencoded } from "./ajax_utils";
+import { markAnInventoryIsRemoved } from "./inventory_removed";
 
 /** @returns {Promise<number>} */
 function _queryInventoryGems(appId, itemType, borderColor) {
@@ -100,6 +101,7 @@ export function convertInventoryToGems(userOverview, item, expectedGems) {
 		['contextid', item.contextid],
 		['goo_value_expected', expectedGems],
 	].map(([k, v]) => `${k}=${encodeURIComponent(String(v))}`).join('&');
+	let resultHTML = '';
 
 	return ajaxJSON('POST', url, parameters, x_www_form_urlencoded).then(response => {
 		if (!response.success)
@@ -108,6 +110,7 @@ export function convertInventoryToGems(userOverview, item, expectedGems) {
 		// ['strHTML']
 		// ['goo_value_received ']
 		// ['goo_value_total']
-		return Promise.resolve(response.strHTML);
-	});
+		resultHTML = response.strHTML;
+		return markAnInventoryIsRemoved(userOverview, item, "已合成宝珠");
+	}).then(() => Promise.resolve(resultHTML));
 }
