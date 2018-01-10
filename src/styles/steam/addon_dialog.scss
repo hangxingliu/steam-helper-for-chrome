@@ -1,0 +1,24 @@
+#dialogContainer {
+	display: none;
+
+	.background {
+		position: fixed;
+		z-index: 900;
+		background: rgba($color: #000000, $alpha: 0.8);
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+	}
+
+	.foreground {
+		margin: 40vh auto 0 auto;
+		width: 480px;
+
+		.newmodal_buttons { margin-top: 10px; }
+	}
+}
+
+#dialogContainer.show {
+	display: block;
+}

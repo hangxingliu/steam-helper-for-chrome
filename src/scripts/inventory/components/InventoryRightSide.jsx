@@ -117,7 +117,7 @@ export class InventoryRightSide extends React.Component {
 								(description.owner_actions || []).map((action, i) => {
 									// 兑换宝珠
 									if (action.link.match(/^javascript:GetGooValue/))
-										return getInventoryToGemsBtn(i, description.gems, actionsHandler.toGems);
+										return getInventoryToGemsBtn(i, item, description, actionsHandler.toGems);
 									// 普通链接
 									return getActionBtn(i, action.name, action.link);
 								})}
@@ -166,11 +166,13 @@ function getActionBtn(key, text, link) {
 	return <a key={key} target="_blank" className="btn_small btn_grey_white_innerfade"
 		href={link}><span>{text}</span></a>;
 }
-function getInventoryToGemsBtn(key, gems, onClickListener) { 
-	if (!gems)
+function getInventoryToGemsBtn(key, item, description, onClickListener) { 
+	if (!description.gems)
 		return <a key={key} className="btn_small btn_darkblue_white_innerfade btn_disabled">
 			合成宝珠 (查询中...)</a>;
 	
 	return <a key={key} className="btn_small btn_darkblue_white_innerfade"
-		onClick={onClickListener}><span>合成 <b style={{ fontSize: '1.2em' }}>{gems}</b> 个宝珠</span></a>;
+		onClick={event => { event.preventDefault(); onClickListener(item, description); }}>
+		<span>合成 <b style={{ fontSize: '1.2em' }}>{description.gems}</b> 个宝珠</span>
+	</a>;
 }

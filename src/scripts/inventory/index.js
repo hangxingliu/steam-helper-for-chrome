@@ -20,6 +20,8 @@ import {
 } from '../api/inventory_price';
 import { logUserOverview, logInventories } from './log';
 import { isInventoryHasGems, queryInventoryGemsByDescription } from '../api/inventory_to_gem';
+import { showDialog, getDialogCancelBtn, getDialogOKButton } from './components/dialog';
+import { Dialog } from './components/Dialog';
 
 const pageSize = 25;
 
@@ -104,7 +106,8 @@ function onClickClearCache() {
 }
 
 function onClickSwitchPage(page = 1) {
-	currentPage = page; return updateUI();
+	currentPage = page;
+	return updateUI();
 }
 
 function onClickInventory(item, desc) {
@@ -135,8 +138,13 @@ function onFilterUpdate(newFiler) {
 	}).catch(onCatchException);
 }
 
-function onClickInventoryToGems() { 
-
+function onClickInventoryToGems(item, description) { 
+	let { name, gems } = description;
+	showDialog(<Dialog title={"将 " + name + " 转换为宝石吗?"}
+		body={<span>{name} 价值 <b>{gems}</b> 个宝石。您要将该物品转化成宝石吗？此操作无法取消。</span>}
+		buttons={[getDialogOKButton(() => {
+			console.log('Converting... TODO');
+		}), getDialogCancelBtn()]}/>)
 }
 
 function onCatchException(ex) { 
