@@ -19,9 +19,12 @@ import {
 	getLast429Timestamp
 } from '../api/inventory_price';
 import { logUserOverview, logInventories } from './log';
-import { isInventoryHasGems, queryInventoryGemsByDescription } from '../api/inventory_to_gem';
+import { isInventoryHasGems, queryInventoryGemsByDescription, convertInventoryToGems } from '../api/inventory_to_gem';
 import { showDialog, getDialogCancelBtn, getDialogOKButton } from './components/dialog';
 import { Dialog } from './components/Dialog';
+import { LoadingDialog } from './components/LoadingDialog';
+import { HTMLBodyDialog } from './components/HTMLBodyDialog';
+import { ErrorDialog } from './components/ErrorDialog';
 
 const pageSize = 25;
 
@@ -143,10 +146,27 @@ function onClickInventoryToGems(item, description) {
 	showDialog(<Dialog title={"将 " + name + " 转换为宝石吗?"}
 		body={<span>{name} 价值 <b>{gems}</b> 个宝石。您要将该物品转化成宝石吗？此操作无法取消。</span>}
 		buttons={[getDialogOKButton(() => {
-			console.log('Converting... TODO');
+			
+			showDialog(<LoadingDialog title="宝珠兑换中" message={`将 ${name} 兑换成 ${gems} 个宝珠 ...`} />)
+				.then(() => convertInventoryToGems(overviewInfo, item, gems))
+				.then(result => showDialog(<HTMLBodyDialog title="兑换成功" htmlBody={result} />))
+				.catch(showErrorDialog);
+
 		}), getDialogCancelBtn()]}/>)
 }
 
+function showErrorDialog(ex) { 
+	let description = ex, code = '';
+	if (ex.message) {
+		description = ex.message;
+		code = ex.stack || '';
+	} else if (ex.error) { 
+		description = ex.error;
+	}
+	console.error(`Catch Exception: ${description}`);
+	console.error(ex);
+	return showDialog(<ErrorDialog {...{ title: "错误", description, code }} />);
+}
 function onCatchException(ex) { 
 	error = ex ? (ex.message || ex) : 'Unknown exception!';
 	console.error(`Catch Exception: ${error}`);

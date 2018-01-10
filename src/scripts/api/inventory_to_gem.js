@@ -4,7 +4,7 @@
 
 import { Dexie } from "dexie";
 import { Tables } from "./database/core";
-import { ajaxJSON } from "./ajax_utils";
+import { ajaxJSON, x_www_form_urlencoded } from "./ajax_utils";
 
 /** @returns {Promise<number>} */
 function _queryInventoryGems(appId, itemType, borderColor) {
@@ -83,4 +83,31 @@ export function queryInventoryGemsByDescription(desc, allowCache = true) {
 	if (!query.appId)
 		return Promise.resolve(null);
 	return queryInventoryGems(query.appId, query.itemType, query.borderColor, allowCache);
+}
+
+/**
+ * @param {SteamUserOverview} userOverview 
+ * @param {SteamInventoryItem} item 
+ * @param {number} expectedGems
+ * @returns {Promise<string>} convert success description html 
+ */
+export function convertInventoryToGems(userOverview, item, expectedGems) { 
+	let url = `https://steamcommunity.com/id/hangxingliu/ajaxgrindintogoo/`;
+	let parameters = [
+		['sessionid', userOverview.sessionID],
+		['appid', item.appid],
+		['assetid', item.assetid],
+		['contextid', item.contextid],
+		['goo_value_expected', expectedGems],
+	].map(([k, v]) => `${k}=${encodeURIComponent(String(v))}`).join('&');
+
+	return ajaxJSON('POST', url, parameters, x_www_form_urlencoded).then(response => {
+		if (!response.success)
+			return Promise.reject(`convert inventory to gems failed! (success = ${response.success})`);
+
+		// ['strHTML']
+		// ['goo_value_received ']
+		// ['goo_value_total']
+		return Promise.resolve(response.strHTML);
+	});
 }
