@@ -3,6 +3,8 @@
 
 import { Tables } from "./database/core";
 import { setTimeout } from "timers";
+import { ajaxJSON } from "./ajax_utils";
+import { getConfigSync } from "./database/config";
 
 const DURATION_NORMAL = 200;
 const DURATION_429 = 60 * 1000; // 429: too many request
@@ -18,37 +20,25 @@ export function getLast429Timestamp() { return last429time; }
  * @param {SteamWalletInfo} walletInfo 
  * @returns {Promise<SteamMarketPriceInfo>}
  */
-function getInventoryMarketPrice(appId, marketHashName, walletInfo) { 
-	const URL = `https://steamcommunity.com/market/priceoverview/?country=${walletInfo.country}&` +
-		`currency=${walletInfo.currency}&appid=${appId}` +
-		`&market_hash_name=${decodeURIComponent(marketHashName)}`;	
+function getInventoryMarketPrice(appId, marketHashName, walletInfo, useAddonAPI = false) { 
+	let qs = `country=${walletInfo.country}&currency=${walletInfo.currency}&appid=${appId}` +
+		`&market_hash_name=${decodeURIComponent(marketHashName)}`;
+	let url = `https://steamcommunity.com/market/priceoverview/?${qs}`;
 
-	return new Promise((resolve, reject) => {
-		let xhr = new XMLHttpRequest();
-		xhr.open('GET', URL);
-		xhr.onload = () => {
-			if (xhr.readyState != 4 || (xhr.status != 200 && xhr.status != 500) )
-				return reject(`xhr.readyState = ${xhr.readyState}; ` +
-					`xhr.status = ${xhr.status};`);
-			
-			let json = xhr.responseText;
-			let obj = {};
-			try { obj = JSON.parse(json); }
-			catch (ex) { return reject(`Invalid market price info SON response`); }
-			
-			if (!obj.success)
-				return resolve({ lowestPrice: '--', last24hrs: 0, timestamp: Date.now() });
-			
-			/** @type {SteamMarketPriceInfo} */
-			let result = { 
-				lowestPrice: obj.lowest_price || '',
-				last24hrs: parseInt((obj.volume || '0').replace(/\D/g, '')),
-				timestamp: Date.now(),
-			};
-			resolve(result);
-		}
-		xhr.onerror = (err) => reject(err);
-		xhr.send();
+	if (useAddonAPI)
+		url = `${getConfigSync('PriceAPIURL', '')}?${qs}&` +
+			getConfigSync('PriceAPIParams', '');
+
+	return ajaxJSON('GET', url, null, null, [200, 500]).then(response => {
+		if (!response.success)
+			return { lowestPrice: '--', last24hrs: 0, timestamp: Date.now() };
+		/** @type {SteamMarketPriceInfo} */
+		let result = {
+			lowestPrice: response.lowest_price || '',
+			last24hrs: parseInt((response.volume || '0').replace(/\D/g, '')),
+			timestamp: Date.now(),
+		};
+		return result;
 	});
 }
 
@@ -57,7 +47,12 @@ function getInventoryMarketPrice(appId, marketHashName, walletInfo) {
 let queryQueue = [];
 let queryingQueue = false;
 
+const STEAM_API_NAME = 'Steam官方市场API';
+const ADDON_API_NAME = '附加的价格查询API';
+let lastQueryQueueAPIName = STEAM_API_NAME;
+
 export function getPriceQueryQueueLength() { return queryQueue.length; }
+export function getLastQueryQueueAPIName() { return lastQueryQueueAPIName; }
 
 /**
  * @param {SteamMarketPriceInfoQuery} query 
@@ -127,20 +122,32 @@ export function startQueryPriceQueue(walletInfo, resultCallback, exceptionCallba
 	}
 	if (queryingQueue)
 		return;
-	
-	// wait 429 froze
-	if (last429time + DURATION_429 > Date.now())
-		return setTimeout(() =>
-			startQueryPriceQueue(walletInfo, resultCallback, exceptionCallback),
-			DURATION_NORMAL);	
-	
 	queryingQueue = true;
+	
+	// remove dumplicated
+	queryQueue = removeDuplicatedQuery(queryQueue);
+
+	let useAddonAPI = false;
+	// wait 429 froze
+	if (last429time + DURATION_429 > Date.now()) {
+		// if has addon api
+		if (getConfigSync('PriceAPIURL')) {
+			useAddonAPI = true;
+		} else {
+			// sleep for waiting 429 unfroze
+			queryingQueue = false;
+			return setTimeout(() =>
+				startQueryPriceQueue(walletInfo, resultCallback, exceptionCallback),
+				Date.now() - last429time);
+		}
+	}
 
 	/** @type {SteamMarketPriceInfo} */
 	let priceInfo = null;
 	let { appId, marketHashName } = queryQueue[0];
 	
-	getInventoryMarketPrice(appId, marketHashName, walletInfo)
+	lastQueryQueueAPIName = useAddonAPI ? ADDON_API_NAME : STEAM_API_NAME;
+	getInventoryMarketPrice(appId, marketHashName, walletInfo, useAddonAPI)
 		.then(price => {
 			priceInfo = price;
 			return updateCache(appId, marketHashName, price)
@@ -164,8 +171,7 @@ export function startQueryPriceQueue(walletInfo, resultCallback, exceptionCallba
 				return;
 			
 			setTimeout(() =>
-				startQueryPriceQueue(walletInfo, resultCallback, exceptionCallback),
-				is429 ? DURATION_429 : DURATION_NORMAL);
+				startQueryPriceQueue(walletInfo, resultCallback, exceptionCallback), DURATION_NORMAL);
 		})
 	
 			// await sleep(DURATION_NORMAL);

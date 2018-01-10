@@ -6,6 +6,14 @@ import { Tables } from "./core";
 /** @type {TableConfigItem[]} */
 let configurations = null;
 
+export function getConfigSync(key, defaultValue) { 
+	if (!configurations) return defaultValue;
+	for (let cfg of configurations)
+		if (cfg.key == key)
+			return cfg.value;
+	return defaultValue;
+}
+
 /** @returns {Promise<TableConfigItem[]>} */
 export function getAllConfig(forceFromDB = false) {
 	if (!forceFromDB && configurations)
@@ -21,12 +29,7 @@ export function getAllConfig(forceFromDB = false) {
  */
 export function getConfig(key, defaultValue) {
 	return getAllConfig()
-		.then(cfgs => {
-			for (let cfg of cfgs)
-				if (cfg.key == key)
-					return Promise.resolve(cfg.value);
-			return Promise.resolve(defaultValue);
-		});
+		.then(() => Promise.resolve(getConfigSync(key, defaultValue)));
 }
 
 /**

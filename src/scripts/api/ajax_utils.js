@@ -10,14 +10,16 @@ export const x_www_form_urlencoded = 'application/x-www-form-urlencoded; charset
  * @param {string} [sendDataType] Request Body Content-type
  * @returns {Promise<string>}
  */
-export function ajax(method, url, data = null, sendDataType = '') { 
+export function ajax(method, url, data = null,
+	sendDataType = '', allowedStatusCode = [200] ) { 
+	
 	return new Promise((resolve, reject) => {
 		let xhr = new XMLHttpRequest();
 		xhr.open(method, url);
 		if (sendDataType)
 			xhr.setRequestHeader("Content-type", sendDataType);
 		xhr.onload = () => {
-			if (xhr.readyState != 4 || xhr.status != 200)
+			if (xhr.readyState != 4 || allowedStatusCode.indexOf(xhr.status) < 0 )
 				return reject(`xhr.readyState = ${xhr.readyState}; ` +
 					`xhr.status = ${xhr.status};`);
 			resolve(xhr.responseText);
@@ -34,8 +36,9 @@ export function ajax(method, url, data = null, sendDataType = '') {
  * @param {string} [sendDataType] Request Body Content-type
  * @returns {Promise<any>}
  */
-export function ajaxJSON(method, url, data = null, sendDataType = '') { 
-	return ajax(method, url, data, sendDataType).then(body => {
+export function ajaxJSON(method, url, data = null,
+	sendDataType = '', allowedStatusCode = [200]) { 
+	return ajax(method, url, data, sendDataType, allowedStatusCode).then(body => {
 		try {
 			return Promise.resolve(JSON.parse(body));
 		} catch (ex) { 

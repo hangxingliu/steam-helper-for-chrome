@@ -62,14 +62,22 @@ body {
     }
 }
 
-.price_info_loading {
-    display: inline-flex;
-    margin-right: 20px;
-    img {height: 24px;}
+#inventory_pagecontrols{
+    float: none !important;
+    .price_info_loading {
+        float: left;
+        display: inline-flex;
+        margin-right: 20px;
+        img {height: 24px;}
+    }
+    .inventory_pagination {
+        float: right;
+    }
 }
 .item_trade_market_info {
     margin-bottom: 10px;
 }
+
 
 .itemHolder {
     $fullHeight: 118px;

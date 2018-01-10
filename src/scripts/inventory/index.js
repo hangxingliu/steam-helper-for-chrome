@@ -26,8 +26,8 @@ import { LoadingDialog } from './components/LoadingDialog';
 import { HTMLBodyDialog } from './components/HTMLBodyDialog';
 import { ErrorDialog } from './components/ErrorDialog';
 import { refreshCache } from '../api/database/core';
-import { SettingsDialog } from './components/SettingsDialog';
 import { queryAreInventoriesRemoved } from '../api/inventory_removed';
+import { getAllConfig, getConfigSync } from '../api/database/config';
 
 const pageSize = 25;
 
@@ -61,6 +61,7 @@ let error = null;
 
 (function main() {
 	updateUI()
+		.then(() => getAllConfig())	 // load all configs from database
 		.then(() => getUserOverview())
 		.then(overview => {
 			logUserOverview(overviewInfo = overview);
@@ -222,11 +223,12 @@ function updateUI() {
 			// automatic queue
 			let queueLength = getPriceQueryQueueLength();
 			let last429 = getLast429Timestamp();
+			let hasAddonAPI = !!getConfigSync('PriceAPIURL');
 			// console.log(`missing price query length: ${missing.length}; ` +
 			// 	`query queue length: ${getPriceQueryQueueLength()}; ` +
 			// 	`last "429" time: ${last429?new Date(last429).toLocaleTimeString():null}`);
 			
-			if (last429 < (Date.now() - 60 * 1000) &&	
+			if ( (last429 < (Date.now() - 60 * 1000) || hasAddonAPI) &&	
 				missing.length > 0 && queueLength == 0 && 
 				missing.length < PRICE_API_LIMIT_PER_MINUTE) { 
 
@@ -263,8 +265,6 @@ function updateUI() {
 					onClickInventory={onClickInventory}
 
 					actionsHandler={{toGems: onClickInventoryToGems}}
-
-					priceLoadingCount={getPriceQueryQueueLength()}
 				/>
 			</div>)
 		);

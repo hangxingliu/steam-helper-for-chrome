@@ -4,6 +4,7 @@
 import React from 'react';
 import { InventoryItem } from './InventoryItem';
 import { InventoryRightSide } from './InventoryRightSide';
+import { getPriceQueryQueueLength, getLastQueryQueueAPIName } from '../../api/inventory_price';
 
 /** @type {SteamInventoryItem[]} */
 const DEFAULT_ITEM_ARRAY = [];
@@ -29,11 +30,12 @@ export function Inventory({
 
 	actionsHandler,
 
-	priceLoadingCount = 0,
-
 	onSwitchPage = DEFAULT_PAGE_SWITCHER,
 	onClickInventory = DEFAULT_CLICK_INVENTORY
 }) {
+	let priceLoadingCount = getPriceQueryQueueLength(),
+		queryAPIName = getLastQueryQueueAPIName();
+
 	let blocks = items.map((item, i) => ({ item, desc: descriptions[i] }));
 	for (let i = blocks.length; i < pageSize; i++)
 		blocks.push({ item: null, desc: null });
@@ -60,20 +62,22 @@ export function Inventory({
 				<div id="inventory_pagecontrols">
 					{priceLoadingCount > 0 ?
 						<div className="price_info_loading">
-							<span>价格信息加载中 (<b>{priceLoadingCount}</b>) ...	</span>
+							<span>从 <b>{queryAPIName}</b> 中加载价格信息 (<b>{priceLoadingCount}</b>) ...	</span>
 							<img src="https://steamcommunity-a.akamaihd.net/public/images/login/throbber.gif" />
 						</div> : ''}
 
-					<a className={"pagecontrol_element pagebtn " + (hasNextPage ? '' : 'disabled')} 
-						onClick={hasNextPage ? () => onSwitchPage(page+1) : undefined}
-						id="pagebtn_next"> &gt; </a>
+					<div className="inventory_pagination">
+						<a className={"pagecontrol_element pagebtn " + (hasNextPage ? '' : 'disabled')} 
+							onClick={hasNextPage ? () => onSwitchPage(page+1) : undefined}
+							id="pagebtn_next"> &gt; </a>
 
-					<div className="pagecontrol_element pagecounts">
-						第 <span id="pagecontrol_cur">{page}</span> 页，共 <span id="pagecontrol_max">{totalPage}</span> 页 </div>
+						<div className="pagecontrol_element pagecounts">
+							第 <span id="pagecontrol_cur">{page}</span> 页，共 <span id="pagecontrol_max">{totalPage}</span> 页 </div>
 
-					<a className={"pagecontrol_element pagebtn " + (hasLastPage ? '' : 'disabled')} 
-						onClick={hasLastPage ? () => onSwitchPage(page-1) : undefined}
-						id="pagebtn_previous">&lt;</a>
+						<a className={"pagecontrol_element pagebtn " + (hasLastPage ? '' : 'disabled')} 
+							onClick={hasLastPage ? () => onSwitchPage(page-1) : undefined}
+							id="pagebtn_previous">&lt;</a>
+					</div>
 
 					<div style={{ clear: 'right' }}></div>
 				</div>

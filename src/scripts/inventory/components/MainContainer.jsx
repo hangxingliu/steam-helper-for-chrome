@@ -21,7 +21,6 @@ export function MainContainer(props) {
 		selectedItem, selectedDescription,
 		inventoryTags,
 		onFilterUpdate, filter,
-		priceLoadingCount,
 		actionsHandler,
 		error
 	} = props;
@@ -44,7 +43,7 @@ export function MainContainer(props) {
 			<Inventory {...{
 				pageSize, page, totalPage, items, descriptions, onSwitchPage, onClickInventory, 
 				selectedItem, selectedDescription,
-				priceLoadingCount, actionsHandler
+				actionsHandler
 			}}	
 				category={categorySelected} />
 		</div>
